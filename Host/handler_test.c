@@ -769,6 +769,10 @@ char *pcsc_error(int rv)
 			strcpy(strError, "IFD: response timeout");
 			break;
 
+		case IFD_NOT_SUPPORTED:
+			strcpy(strError, "IFD: not supported");
+			break;
+
 		default:
 			snprintf(strError, sizeof(strError)-1, "IFD: undocumented error: 0x%X", rv);
 	}
