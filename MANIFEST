@@ -9,4 +9,6 @@ Host/Makefile
 Host/parser.h
 Host/TODO
 Host/tokenparser.l
+Makefile
+MANIFEST
 README
