@@ -74,7 +74,7 @@ struct f_t {
 	RESPONSECODE (*IFDHTransmitToICC)(DWORD, SCARD_IO_HEADER, PUCHAR, 
 	  			   DWORD, PUCHAR, PDWORD, 
 	  			   PSCARD_IO_HEADER);
-	//RESPONSECODE IFDHControl ( DWORD, PUCHAR, DWORD, PUCHAR, PDWORD );
+	RESPONSECODE (*IFDHControl)(DWORD, DWORD, PUCHAR, DWORD, PUCHAR, DWORD, PDWORD);
 	RESPONSECODE (*IFDHICCPresence)(DWORD);
 };
 
@@ -227,6 +227,7 @@ int main(int argc, char *argv[])
 	DLSYM(IFDHPowerICC)
 	DLSYM(IFDHTransmitToICC)
 	DLSYM(IFDHICCPresence)
+	DLSYM(IFDHControl)
 
 	f.IFDHCreateChannelByName = dlsym(lib_handle, "IFDHCreateChannelByName");
 	if (f.IFDHCreateChannelByName == NULL && device_name)
@@ -278,6 +279,27 @@ int handler_test(int lun, int channel, char device_name[])
 			printf("and that you have read/write permission on the device?\n");
 			return 1;
 		}
+	}
+
+#define SCARD_CTL_CODE(code) (0x42000000 + (code))
+
+#define IOCTL_SMARTCARD_VENDOR_IFD_EXCHANGE     SCARD_CTL_CODE(1)
+
+	{
+		unsigned char cmd[] = "\x02";
+		unsigned char res[100];
+		DWORD length;
+
+		rv = f.IFDHControl(LUN, IOCTL_SMARTCARD_VENDOR_IFD_EXCHANGE,
+			cmd, sizeof(cmd)-1, res, sizeof(res), &length);
+		if (IFD_SUCCESS == rv)
+		{
+			debug_xxd("Firmware: ", res, length);
+			res[length] = '\0';
+			printf("Firmware: %s\n", res);
+		}
+		else
+			pcsc_error(rv);
 	}
 
 	rv = f.IFDHICCPresence(LUN);
@@ -697,6 +719,10 @@ void pcsc_error(int rv)
 {
 	switch (rv)
 	{
+		case IFD_SUCCESS:
+			DEBUG("IFD: success");
+			break;
+
 		case IFD_ICC_PRESENT:
 			DEBUG("IFD: card present");
 			break;
@@ -718,7 +744,7 @@ void pcsc_error(int rv)
 			break;
 
 		default:
-			DEBUG2("IFD: undocumented error: %X", rv);
+			DEBUG2("IFD: undocumented error: 0x%X", rv);
 	}
 } /* pcsc_error */
 
