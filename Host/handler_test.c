@@ -41,7 +41,7 @@
 #endif
 
 int handler_test(int lun, int channel, char device_name[]);
-char *pcsc_error(int rv);
+char *ifd_error(int rv);
 int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	PSCARD_IO_HEADER RecvPci,
 	UCHAR s[], DWORD s_length,
@@ -63,7 +63,7 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	printf("--------> OK\n"); \
 	}
 
-#define PCSC_ERROR(x) printf("%s:%d " x ": %s\n", __FILE__, __LINE__, pcsc_error(rv))
+#define PCSC_ERROR(x) printf("%s:%d " x ": %s\n", __FILE__, __LINE__, ifd_error(rv))
 
 struct f_t {
 	RESPONSECODE (*IFDHCreateChannel)(DWORD, DWORD);
@@ -315,7 +315,7 @@ int handler_test(int lun, int channel, char device_name[])
 		}
 		else
 			PCSC_ERROR("IFDHControl");
-			//printf("IFDHControl: %s\n", pcsc_error(rv));
+			//printf("IFDHControl: %s\n", ifd_error(rv));
 	}
 
 	rv = f.IFDHICCPresence(LUN);
@@ -739,7 +739,7 @@ end:
 	return 0;
 } /* handler_test */
 
-char *pcsc_error(int rv)
+char *ifd_error(int rv)
 {
 	static char strError[80];
 
@@ -778,7 +778,7 @@ char *pcsc_error(int rv)
 	}
 
 	return strError;
-} /* pcsc_error */
+} /* ifd_error */
 
 int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	PSCARD_IO_HEADER RecvPci,
