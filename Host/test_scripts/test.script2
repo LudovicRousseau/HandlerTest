@@ -23,4 +23,6 @@ reset
 
 # you should get a Transaction failed for this command
 00 30 00 00 00 00 00 00
+00 30 00 00 00 00 00 00 00
+00 30 00 00 00 00 00 00 00 00
 
