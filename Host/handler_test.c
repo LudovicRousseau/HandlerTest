@@ -341,7 +341,7 @@ int handler_test(int lun, int channel, char device_name[])
 		t1 ? SCARD_PROTOCOL_T1 : SCARD_PROTOCOL_T0,
 		0, 0, 0, 0);
 	PCSC_ERROR("IFDHSetProtocolParameters");
-	if (IFD_SUCCESS != rv)
+	if ((IFD_SUCCESS != rv) && (IFD_NOT_SUPPORTED != rv))
 		goto end;
 
 	memset(&SendPci, 0, sizeof(SendPci));
