@@ -100,7 +100,7 @@ extern int optind, opterr, optopt;
 
 void help(char *argv0)
 {
-	printf("\nUsage: %s [-f] [-t val] [-1] [-2] [-3] [-4] [-A] [-T] libname [channel|device_name]\n", argv0);
+	printf("\nUsage: %s [-f] [-t val] [-1] [-2] [-3] [-4] [-A] [-T] [libname] [channel [device_name]|device_name]\n", argv0);
 	printf("  -f : test APDU with every possible lengths\n");
 	printf("  -t val : use val as timerequest value. Set to 0 to avoid test\n");
 	printf("  -1 : test CASE 1 APDU\n");
