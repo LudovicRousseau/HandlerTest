@@ -481,7 +481,7 @@ int handler_test(int lun, int channel, char device_name[])
 		 * 256 (0x100) maximum, 1 minimum
 		 */
 		text = "Case 3: CLA INS P1 P2 Lc Data, L(Cmd) = 5 + Lc";
-		start = end = 255;
+		start = end = 256;
 		if (full)
 			start = 1;
 
