@@ -1,0 +1,27 @@
+JavaCard IHDHandler test applet
+===============================
+
+This applet is used to test smart cards drivers by sending/receiving ISO
+7816 commands.
+
+
+Authors:
+========
+- Jean-Luc Giraud
+- Ludovic Rousseau
+
+
+Supported platforms:
+====================
+- Any JavaCard 2.2
+
+
+Licence:
+========
+The code included in this driver is licensed under a BSD-like license
+(see COPYING at the root of the package).
+
+History:
+========
+- 0.1.0 - 4 Sept 2003 Initial public release
+

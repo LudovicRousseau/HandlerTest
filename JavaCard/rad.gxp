@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GemXpressoProject>
+    <PackageVersion MajorVersion="1" MinorVersion="0"/>
+    <PackageInfo aid="A0 00 00 00 18 FF">
+        <AppletInfo aid="A0 00 00 00 18 FF 01" name="readertest.class"/>
+    </PackageInfo>
+    <SourceAttributes/>
+    <PackageName>org.debian.alioth.pcsclite.readertest</PackageName>
+    <ClassFilePath>.\out</ClassFilePath>
+    <SupportedCard disabled="false" name="GXP211v2_IS" supportedInteger="false">
+        <OutputFilePath>.\oncard\GXP211v2_IS</OutputFilePath>
+    </SupportedCard>
+</GemXpressoProject>
