@@ -216,11 +216,17 @@ int main(int argc, char *argv[])
 	}
 
 	DLSYM(IFDHCreateChannel)
-	DLSYM(IFDHCreateChannelByName)
 	DLSYM(IFDHCloseChannel)
 	DLSYM(IFDHPowerICC)
 	DLSYM(IFDHTransmitToICC)
 	DLSYM(IFDHICCPresence)
+
+	f.IFDHCreateChannelByName = dlsym(lib_handle, "IFDHCreateChannelByName");
+	if (f.IFDHCreateChannelByName == NULL && device_name)
+	{
+		printf("IFDHCreateChannelByName not defined by the driver and device_name set\n");
+		return 1;
+	}
 
 	ret = handler_test(LUN, channel, device_name);
 	dlclose(lib_handle);
