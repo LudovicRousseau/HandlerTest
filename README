@@ -25,10 +25,14 @@ Authors:
 Licence:
 ========
 
-This program is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by the
-Free Software Foundation; either version 2 of the License, or (at your
-option) any later version.
+Host part
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or (at
+  your option) any later version.
+
+JavaCard part
+  BSD-like licence. See JavaCard/COPYING
 
 
 Tested commands:
@@ -61,9 +65,18 @@ Cmd  = CLA INS P1 P2 Lc Data
 L(Cmd) = 5 + Lc
 -> TPDU, treat as Case 3 and return 61 xx, and perform GET RESPONSE
 
+Time Request
+This is not a command per se but the card will send time requests (0x60)
+to the reader.
+
 
 History
 =======
+
+0.2.0 - 4 September 2003, Ludovic Rousseau
+    - add support of time request (reported by CCID readers)
+    - include the JavaCard applet source code written by Jean-Luc Giraud
+    - add scripts to send commands (to be used with scriptor(1))
 
 0.1.0 - 11 August 2003, Ludovic Rousseau
     - first public release
