@@ -35,6 +35,10 @@
 #define LUN 0
 #define ENV_LIBNAME "LIB"
 
+/* define DEVICE_NAME if yo want to use
+ * IFDHCreateChannelByName instead of IFDHCreateChannel */
+/* #define DEVICE_NAME "usb:08e6/3437" */
+
 #ifndef TRUE
 #define TRUE 1
 #define FALSE 0
@@ -65,6 +69,7 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 
 struct f_t {
 	RESPONSECODE (*IFDHCreateChannel)(DWORD, DWORD);
+	RESPONSECODE (*IFDHCreateChannelByName)(DWORD, PUCHAR);
 	RESPONSECODE (*IFDHCloseChannel)(DWORD);
 	//RESPONSECODE IFDHGetCapabilities ( DWORD, DWORD, PDWORD, PUCHAR );
 	//RESPONSECODE IFDHSetCapabilities ( DWORD, DWORD, DWORD, PUCHAR );
@@ -203,6 +208,7 @@ int main(int argc, char *argv[])
 	}
 
 	DLSYM(IFDHCreateChannel)
+	DLSYM(IFDHCreateChannelByName)
 	DLSYM(IFDHCloseChannel)
 	DLSYM(IFDHPowerICC)
 	DLSYM(IFDHTransmitToICC)
@@ -228,6 +234,17 @@ int handler_test(int lun, int channel)
 	int time;
 	int start, end;
 
+#ifdef DEVICE_NAME
+	rv = f.IFDHCreateChannelByName(lun, DEVICE_NAME);
+
+	if (rv != IFD_SUCCESS)
+	{
+		printf("IFDHCreateChannelByName: %d\n", rv);
+		printf("\nAre you sure a CCID reader is connected?\n");
+		printf("and that you have read/write permission on the device?\n");
+		return 1;
+	}
+#else
 	rv = f.IFDHCreateChannel(lun, channel);
 
 	if (rv != IFD_SUCCESS)
@@ -237,6 +254,7 @@ int handler_test(int lun, int channel)
 		printf("and that you have read/write permission on the device?\n");
 		return 1;
 	}
+#endif
 
 	rv = f.IFDHICCPresence(LUN);
 	pcsc_error(rv);
