@@ -29,7 +29,7 @@ make distclean &> /dev/null
 echo "done"
 
 # generate Changelog
-rcs2log | sed -e s+/cvsroot/pcsclite/Drivers/ccid/++g > Changelog
+rcs2log | sed -e s+/cvsroot/pcsclite/HandlerTest/++g > Changelog
 
 present_files=$(tempfile)
 manifest_files=$(tempfile)
