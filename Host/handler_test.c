@@ -90,6 +90,7 @@ int timerequest = -1;
 char cases = 0;
 char tpdu = FALSE;
 char apdu = FALSE;
+char t1 = FALSE;
 
 /* getopt(3) */
 extern char *optarg;
@@ -107,6 +108,7 @@ void help(char *argv0)
 	printf("  -4 : test CASE 4 APDU\n");
 	printf("  -A : use APDU\n");
 	printf("  -T : use TPDU\n");
+	printf("  -Z : use T=1 instead of default T=0\n");
 	printf("  libname : driver to load\n");
 	printf("  channel : channel to use (for a serial driver)\n\n");
 	printf("example: %s /usr/lib/pcsc/drivers/serial/libGemPC410.so 2\n",
@@ -126,7 +128,7 @@ int main(int argc, char *argv[])
 	char *driver;
 	int opt;
 
-	while ((opt = getopt(argc, argv, "ft:1234AT")) != EOF)
+	while ((opt = getopt(argc, argv, "ft:1234ATZ")) != EOF)
 	{
 		switch (opt)
 		{
@@ -158,6 +160,11 @@ int main(int argc, char *argv[])
 				printf("Use TPDU\n");
 				break;
 
+			case 'Z':
+				t1 = TRUE;
+				printf("Use T=1\n");
+				break;
+
 			default:
 				printf ("caractère: %c (0x%02X)\n", opt, opt);
 				help(argv[0]);
@@ -181,7 +188,7 @@ int main(int argc, char *argv[])
 	else
 	{
 		// channel
-		if (argc - optind > 1)
+		if (argc - optind >= 1)
 			channel = atoi(argv[optind]);
 	}
 
@@ -248,6 +255,8 @@ int handler_test(int lun, int channel)
 	pcsc_error(rv);
 
 	memset(&SendPci, 0, sizeof(SendPci));
+	SendPci.Protocol = t1;
+
 	memset(&RecvPci, 0, sizeof(RecvPci));
 
 	/* Select applet */
@@ -667,7 +676,7 @@ void pcsc_error(int rv)
 			break;
 
 		default:
-			DEBUG2("IFD: undocumented error: %d", rv);
+			DEBUG2("IFD: undocumented error: %X", rv);
 	}
 } /* pcsc_error */
 
