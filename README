@@ -1,0 +1,72 @@
+HandlerTest
+===========
+
+This program send commands to a card through the reader.
+
+The card must implement the test application. The application is
+provided as a JavaCard applet.
+
+The tester dynamically load the driver. pcscd must be stopped (unless
+you know what you do) to avoid interferences with the drivers/readers
+already used by pcscd.
+
+The tester will only find and use the first USB reader found by the
+reader. If you have multiple readers managed by the same driver you must
+test them one after the other.
+
+
+Authors:
+========
+
+- Jean-Luc Giraud for the JavaCard applet
+- Ludovic Rousseau for the host part
+
+
+Licence:
+========
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of the License, or (at your
+option) any later version.
+
+
+Tested commands:
+================
+
+Case 1, APDU:
+Cmd  = CLA INS P1 P2
+L(Cmd) = 4
+
+Case 1, TPDU:
+Cmd  = CLA INS P1 P2 P3 (=0)
+L(Cmd) = 5
+
+Case 2:
+Cmd  = CLA INS P1 P2 Le
+L(Cmd) = 5
+-> No difference between TPDU and APDU (T=0)
+
+Case 3:
+Cmd  = CLA INS P1 P2 Lc Data
+L(Cmd) = 5 + Lc
+-> No difference between TPDU and APDU (T=0)   
+
+Case 4, APDU:
+Cmd  = CLA INS P1 P2 Lc Data Le
+L(Cmd) = 5 + Lc +1
+
+Case 4, TPDU:
+Cmd  = CLA INS P1 P2 Lc Data
+L(Cmd) = 5 + Lc
+-> TPDU, treat as Case 3 and return 61 xx, and perform GET RESPONSE
+
+
+History
+=======
+
+0.1.0 - 11 August 2003, Ludovic Rousseau
+    - first public release
+
+$Id$
+ vim:ts=20

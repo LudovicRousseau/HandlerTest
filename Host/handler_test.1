@@ -1,0 +1,44 @@
+.TH "handler_test" "1" "August 2003" "User Commands"
+.SH "NAME"
+.LP 
+handler_test \- PC/SC-lite smart card reader driver tester
+.SH "SYNTAX"
+.B handler_test
+libname [ channel ]
+
+.B handler_test
+[ channel ]
+.SH "DESCRIPTION"
+handler_test is used to test and find bugs in PC/SC-lite smart card
+reader drivers.
+
+USB reader drivers do not use channel. If omitted the parameter will be
+set to 0.
+
+The driver to use is dynamically loaded. You can define the LIB
+environment variable to the value of libname. You will then avoid to do
+ 'set args ../../ccid-0.1.0/src/libccid.so' at each start of gdb(1).
+
+.SH OPTIONS
+.TP
+.B libname
+name of the library driver to use
+.TP
+.B channel
+channel number to communicate to the driver
+
+For serial reader drivers the channel is the serial port to use. 1 ->
+/dev/pcsc/1, 2 -> /dev/pcsc/2, etc.
+.SH "EXAMPLES"
+ handler_test /usr/lib/pcsc/drivers/serial/libGemPC410.so 2
+
+To use the libGemPC410 driver on channel 2 (/dev/pcsc/2)
+
+ export LIB=../../ccid-0.1.0/src/libccid.so
+ handler_test
+
+to avoid using command line arguments.
+.SH "AUTHORS"
+This manual page was written by Ludovic Rousseau <ludovic.rousseau@free.fr>
+.SH "SEE ALSO"
+.BR pcscd (8),
