@@ -1,6 +1,6 @@
 /*
     handler_test.c: main function used for IFDH debug
-    Copyright (C) 2001-2003   Ludovic Rousseau
+    Copyright (C) 2001-2004   Ludovic Rousseau
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,16 +35,12 @@
 #define LUN 0
 #define ENV_LIBNAME "LIB"
 
-/* define DEVICE_NAME if yo want to use
- * IFDHCreateChannelByName instead of IFDHCreateChannel */
-/* #define DEVICE_NAME "usb:08e6/3437" */
-
 #ifndef TRUE
 #define TRUE 1
 #define FALSE 0
 #endif
 
-int handler_test(int lun, int channel);
+int handler_test(int lun, int channel, char device_name[]);
 void pcsc_error(int rv);
 int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	PSCARD_IO_HEADER RecvPci,
@@ -104,7 +100,7 @@ extern int optind, opterr, optopt;
 
 void help(char *argv0)
 {
-	printf("\nUsage: %s [-f] [-t val] [-1] [-2] [-3] [-4] [-A] [-T] libname [channel]\n", argv0);
+	printf("\nUsage: %s [-f] [-t val] [-1] [-2] [-3] [-4] [-A] [-T] libname [channel|device_name]\n", argv0);
 	printf("  -f : test APDU with every possible lengths\n");
 	printf("  -t val : use val as timerequest value. Set to 0 to avoid test\n");
 	printf("  -1 : test CASE 1 APDU\n");
@@ -115,7 +111,9 @@ void help(char *argv0)
 	printf("  -T : use TPDU\n");
 	printf("  -Z : use T=1 instead of default T=0\n");
 	printf("  libname : driver to load\n");
-	printf("  channel : channel to use (for a serial driver)\n\n");
+	printf("  channel : channel to use (for a serial driver)\n");
+	printf("  device_name : name to use in IFDHCreateChannelByName\n");
+	printf("   like usb:08e6/3437:libusb:001/038 or /dev/pcsc/1\n\n");
 	printf("example: %s /usr/lib/pcsc/drivers/serial/libGemPC410.so 2\n",
 		argv0);
 	printf(" to load the libGemPC410 and use /dev/pcsc/2\n");
@@ -132,6 +130,7 @@ int main(int argc, char *argv[])
 	int channel = 0;
 	char *driver;
 	int opt;
+	char *device_name = NULL;
 
 	while ((opt = getopt(argc, argv, "ft:1234ATZ")) != EOF)
 	{
@@ -186,19 +185,28 @@ int main(int argc, char *argv[])
 		// driver
 		driver = argv[optind];
 
-		// channel
+		// channel or device_name
 		if (argc - optind >= 2)
+		{
 			channel = atoi(argv[optind+1]);
+			if (channel == 0)
+				device_name = argv[optind+1];
+		}
 	}
 	else
 	{
 		// channel
 		if (argc - optind >= 1)
+		{
 			channel = atoi(argv[optind]);
+			if (channel == 0)
+				device_name = argv[optind];
+		}
 	}
 
 	printf("Using driver: %s\n", driver);
 	printf("Using channel: %d\n", channel);
+	printf("Using device_name: %s\n", device_name);
 
 	lib_handle = dlopen(driver, RTLD_LAZY);
 	if (lib_handle == NULL)
@@ -214,13 +222,13 @@ int main(int argc, char *argv[])
 	DLSYM(IFDHTransmitToICC)
 	DLSYM(IFDHICCPresence)
 
-	ret = handler_test(LUN, channel);
+	ret = handler_test(LUN, channel, device_name);
 	dlclose(lib_handle);
 
 	return ret;
 } /* main */
 
-int handler_test(int lun, int channel)
+int handler_test(int lun, int channel, char device_name[])
 {
 	int rv, i, len_i, len_o;
 	UCHAR atr[MAX_ATR_SIZE];
@@ -234,27 +242,30 @@ int handler_test(int lun, int channel)
 	int time;
 	int start, end;
 
-#ifdef DEVICE_NAME
-	rv = f.IFDHCreateChannelByName(lun, DEVICE_NAME);
-
-	if (rv != IFD_SUCCESS)
+	if (device_name)
 	{
-		printf("IFDHCreateChannelByName: %d\n", rv);
-		printf("\nAre you sure a CCID reader is connected?\n");
-		printf("and that you have read/write permission on the device?\n");
-		return 1;
-	}
-#else
-	rv = f.IFDHCreateChannel(lun, channel);
+		rv = f.IFDHCreateChannelByName(lun, device_name);
 
-	if (rv != IFD_SUCCESS)
-	{
-		printf("IFDHCreateChannel: %d\n", rv);
-		printf("\nAre you sure a CCID reader is connected?\n");
-		printf("and that you have read/write permission on the device?\n");
-		return 1;
+		if (rv != IFD_SUCCESS)
+		{
+			printf("IFDHCreateChannelByName: %d\n", rv);
+			printf("\nAre you sure a CCID reader is connected?\n");
+			printf("and that you have read/write permission on the device?\n");
+			return 1;
+		}
 	}
-#endif
+	else
+	{
+		rv = f.IFDHCreateChannel(lun, channel);
+
+		if (rv != IFD_SUCCESS)
+		{
+			printf("IFDHCreateChannel: %d\n", rv);
+			printf("\nAre you sure a CCID reader is connected?\n");
+			printf("and that you have read/write permission on the device?\n");
+			return 1;
+		}
+	}
 
 	rv = f.IFDHICCPresence(LUN);
 	pcsc_error(rv);
