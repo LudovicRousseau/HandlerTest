@@ -63,7 +63,7 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	printf("--------> OK\n"); \
 	}
 
-#define PCSC_ERROR(x) printf("%s:%d" x ": %s\n", __FILE__, __LINE__, pcsc_error(rv))
+#define PCSC_ERROR(x) printf("%s:%d " x ": %s\n", __FILE__, __LINE__, pcsc_error(rv))
 
 struct f_t {
 	RESPONSECODE (*IFDHCreateChannel)(DWORD, DWORD);
