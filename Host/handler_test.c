@@ -143,6 +143,8 @@ int handler_test(int lun, int channel)
 	if (rv != IFD_SUCCESS)
 	{
 		printf("IFDHCreateChannel: %d\n", rv);
+		printf("\nAre you sure a reader is connected?\n");
+		printf("and that you have read/write permission on the device?\n");
 		return 1;
 	}
 
