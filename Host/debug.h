@@ -26,9 +26,14 @@
 #ifndef _GCDEBUG_H_
 #define  _GCDEBUG_H_
 
-#define DEBUG(fmt) debug_msg("%s:%d " fmt, __FILE__, __LINE__)
-#define DEBUG2(fmt, data) debug_msg("%s:%d " fmt, __FILE__, __LINE__, data)
-#define DEBUG3(fmt, data1, data2) debug_msg("%s:%d " fmt, __FILE__, __LINE__, data1, data2)
+/* You can't do #ifndef __FUNCTION__ */
+#if !defined(__GNUC__) && !defined(__IBMC__)
+#define __FUNCTION__ ""
+#endif
+
+#define DEBUG(fmt) debug_msg("%s:%d:%s " fmt, __FILE__, __LINE__, __FUNCTION__)
+#define DEBUG2(fmt, data) debug_msg("%s:%d:%s " fmt, __FILE__, __LINE__, __FUNCTION__, data)
+#define DEBUG3(fmt, data1, data2) debug_msg("%s:%d:%s " fmt, __FILE__, __LINE__, __FUNCTION__, data1, data2)
 
 void debug_msg(char *fmt, ...);
 void debug_xxd(const char *msg, const unsigned char *buffer, const int size);
