@@ -63,8 +63,8 @@ do
 		idir=$dir/${i%/*}
 		if [ ! -d $idir ]
 		then
-			echo "mkdir $idir"
-			mkdir $idir
+			echo "mkdir -p $idir"
+			mkdir -p $idir
 		fi
 	fi
 	echo "cp $i $dir/$i"
