@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define DEBUG_BUF_SIZE 4096	/* up to 1200 bytes to dump */
+#define DEBUG_BUF_SIZE 4096
 
 static char DebugBuffer[DEBUG_BUF_SIZE];
 
