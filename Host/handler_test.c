@@ -773,8 +773,12 @@ char *ifd_error(int rv)
 			strcpy(strError, "IFD: not supported");
 			break;
 
+		case IFD_ERROR_POWER_ACTION:
+			strcpy(strError, "IFD: power up failed");
+			break;
+
 		default:
-			snprintf(strError, sizeof(strError)-1, "IFD: undocumented error: 0x%X", rv);
+			snprintf(strError, sizeof(strError)-1, "IFD: undocumented error: %d", rv);
 	}
 
 	return strError;
