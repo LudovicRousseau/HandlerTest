@@ -26,6 +26,10 @@ import javacard.framework.*;
 public class readertest extends javacard.framework.Applet
 {
     private final static byte CLA_TEST_READER  = (byte)0x80;
+    private final static byte INS_CASE_1_ODD   = (byte)0x20;
+    private final static byte INS_CASE_2_ODD   = (byte)0x21;
+    private final static byte INS_CASE_3_ODD   = (byte)0x22;
+    private final static byte INS_CASE_4_ODD   = (byte)0x23;
     private final static byte INS_CASE_1       = (byte)0x30;
     private final static byte INS_CASE_2       = (byte)0x32;
     private final static byte INS_CASE_3       = (byte)0x34;
@@ -119,14 +123,16 @@ public class readertest extends javacard.framework.Applet
         // APDU instruction parser
         switch ( apduBuffer[ISO7816.OFFSET_INS] )
         {
-            case INS_CASE_1 :
+            case INS_CASE_1:
+            case INS_CASE_1_ODD:
               if ( (apduBuffer[ISO7816.OFFSET_LC] & (byte) 0x00FF) != 0 )
               {
                 ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
               }
               break;
 			  
-            case INS_CASE_2 :
+            case INS_CASE_2:
+            case INS_CASE_2_ODD:
               // Incoming Data length
               bytesLeft = (short) (apduBuffer[ISO7816.OFFSET_LC]
                                                & 0x00FF);
@@ -155,6 +161,7 @@ public class readertest extends javacard.framework.Applet
             break;
 
             case INS_CASE_3:
+            case INS_CASE_3_ODD:
               // Outgoing Data length
               le = apdu.setOutgoing();
               if ( le == ((short) 0x0000) )
@@ -173,6 +180,7 @@ public class readertest extends javacard.framework.Applet
             break;
 
             case INS_CASE_4:
+            case INS_CASE_4_ODD:
               // Incoming Data length
               bytesLeft = (short) (apduBuffer[ISO7816.OFFSET_LC]
                                                & 0x00FF);
@@ -215,7 +223,7 @@ public class readertest extends javacard.framework.Applet
 						
 			break;
 
-            case INS_CASE_2_UNBOUND :
+            case INS_CASE_2_UNBOUND:
               // Incoming Data length
               bytesLeft = (short) (apduBuffer[ISO7816.OFFSET_LC]
                                                & 0x00FF);
@@ -280,7 +288,7 @@ public class readertest extends javacard.framework.Applet
               apdu.sendBytesLong(pcValueTable, (short) 0x0000, requiredLe);
             break;
 
-            default :
+            default:
                 // The INS code is not supported by the dispatcher
                 ISOException.throwIt( ISO7816.SW_INS_NOT_SUPPORTED ) ;
             break ;
