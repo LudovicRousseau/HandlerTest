@@ -26,11 +26,14 @@ import javacard.framework.*;
 public class readertest extends javacard.framework.Applet
 {
     private final static byte CLA_TEST_READER  = (byte)0x80;
-    private final static byte INS_CASE_1       = (byte)0x21;
-    private final static byte INS_CASE_2       = (byte)0x22;
-    private final static byte INS_CASE_3       = (byte)0x23;
-    private final static byte INS_CASE_4       = (byte)0x24;
-    private final static byte INS_TIME_REQUEST = (byte)0x25;
+    private final static byte INS_CASE_1       = (byte)0x30;
+    private final static byte INS_CASE_2       = (byte)0x32;
+    private final static byte INS_CASE_3       = (byte)0x34;
+    private final static byte INS_CASE_4       = (byte)0x36;
+    private final static byte INS_TIME_REQUEST = (byte)0x38;
+    private final static byte INS_CASE_2_UNBOUND = (byte)0x3A;
+    private final static byte INS_CASE_3_UNBOUND = (byte)0x3C;
+    private final static byte INS_CASE_4_UNBOUND = (byte)0x3E;
 
     private final static byte pcValueTable[]  = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -104,6 +107,10 @@ public class readertest extends javacard.framework.Applet
     {
         // get the APDU buffer
         byte[] apduBuffer = apdu.getBuffer();
+		short bytesLeft;
+		short le;
+		short index;
+		short readCount;
 
         // ignore the applet select command dispached to the process
         if (selectingApplet())
@@ -121,15 +128,15 @@ public class readertest extends javacard.framework.Applet
 			  
             case INS_CASE_2 :
               // Incoming Data length
-              short bytesLeft = (short) (apduBuffer[ISO7816.OFFSET_LC]
+              bytesLeft = (short) (apduBuffer[ISO7816.OFFSET_LC]
                                                & 0x00FF);
               if ( bytesLeft == 0 )
               {
                 ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
               }
               // Get the Data
-              short index=0;
-              short readCount = apdu.setIncomingAndReceive();
+              index=0;
+              readCount = apdu.setIncomingAndReceive();
               while ( bytesLeft > 0 )
               {
                 for (short i=0; i<readCount; i++)
@@ -149,7 +156,7 @@ public class readertest extends javacard.framework.Applet
 
             case INS_CASE_3:
               // Outgoing Data length
-              short le = apdu.setOutgoing();
+              le = apdu.setOutgoing();
               if ( le == ((short) 0x0000) )
               {
                 le = (short) 0x0100;
@@ -192,7 +199,7 @@ public class readertest extends javacard.framework.Applet
                 readCount = apdu.receiveBytes (ISO7816.OFFSET_CDATA);
               }
               // Outgoing Data length
-              le = apdu.setOutgoing();
+			  apdu.setOutgoing();
               requiredLe = Util.getShort(apduBuffer,ISO7816.OFFSET_P1);
               apdu.setOutgoingLength (requiredLe);
               apdu.sendBytesLong(pcValueTable, (short) 0x0000, requiredLe);
@@ -208,13 +215,76 @@ public class readertest extends javacard.framework.Applet
 						
 			break;
 
+            case INS_CASE_2_UNBOUND :
+              // Incoming Data length
+              bytesLeft = (short) (apduBuffer[ISO7816.OFFSET_LC]
+                                               & 0x00FF);
+              if ( bytesLeft == 0 )
+              {
+                ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
+              }
+              // Get the Data
+              index=0;
+              readCount = apdu.setIncomingAndReceive();
+              while ( bytesLeft > 0 )
+              {
+                for (short i=0; i<readCount; i++)
+                {
+                  if ( ((short)(apduBuffer[(short)(ISO7816.OFFSET_CDATA+i)] & 0x00FF))
+                         != index )
+                  {
+                    short SW = (short) (0x6A00 + i);
+                    ISOException.throwIt( SW );
+                  }
+                  index++;
+                }
+                bytesLeft -= readCount;
+                readCount = apdu.receiveBytes (ISO7816.OFFSET_CDATA);
+              }
+            break;
+
+            case INS_CASE_3_UNBOUND:
+              // Outgoing Data length
+              le = apdu.setOutgoing();
+              requiredLe = Util.getShort(apduBuffer,ISO7816.OFFSET_P1);
+
+              apdu.setOutgoingLength (le);
+              apdu.sendBytesLong(pcValueTable, (short) 0x0000, requiredLe);
+            break;
+
+            case INS_CASE_4_UNBOUND:
+              // Incoming Data length
+              bytesLeft = (short) (apduBuffer[ISO7816.OFFSET_LC]
+                                               & 0x00FF);
+              // Get the Data
+              index=0;
+              readCount = apdu.setIncomingAndReceive();
+              while ( bytesLeft > 0 )
+              {
+                for (short i=0; i<readCount; i++)
+                {
+                  if ( ((short)(apduBuffer[(short)(ISO7816.OFFSET_CDATA+i)] & 0x00FF))
+                         != index )
+                  {
+                    short SW = (short) (0x6A00 + i);
+                    ISOException.throwIt( SW );
+                  }
+                  index++;
+                }
+                bytesLeft -= readCount;
+                readCount = apdu.receiveBytes (ISO7816.OFFSET_CDATA);
+              }
+              // Outgoing Data length
+              requiredLe = Util.getShort(apduBuffer,ISO7816.OFFSET_P1);
+              apdu.setOutgoingLength (requiredLe);
+              apdu.sendBytesLong(pcValueTable, (short) 0x0000, requiredLe);
+            break;
+
             default :
                 // The INS code is not supported by the dispatcher
                 ISOException.throwIt( ISO7816.SW_INS_NOT_SUPPORTED ) ;
             break ;
-
         }
     }
-
 }
 

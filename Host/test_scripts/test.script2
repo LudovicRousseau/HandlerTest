@@ -14,13 +14,13 @@ reset
 00 A4 04 00 06 A0 00 00 00 18 FF
 
 # Case 1
-00 21 00 00
-00 21 00 00 00
-00 21 00 00 00 00
+00 30 00 00
+00 30 00 00 00
+00 30 00 00 00 00
 
 # you should get a 6D 00 error for this command
-00 21 00 00 00 00 00
+00 30 00 00 00 00 00
 
 # you should get a Transaction failed for this command
-00 21 00 00 00 00 00 00
+00 30 00 00 00 00 00 00
 

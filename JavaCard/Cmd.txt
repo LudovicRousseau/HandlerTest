@@ -9,30 +9,30 @@ Select Applet
 
 Case 1
 ~~~~~~
--> 80 21 00 00 00
+-> 80 30 00 00 00
 <- 90 00
 
 Case 2
 ~~~~~~
--> 80 22 00 00 xy 00 01 02 <- xy bytes -> (xy-1)
+-> 80 32 00 00 xy 00 01 02 <- xy bytes -> (xy-1)
 <- 90 00
-ex: 80 22 00 00 0A 00 01 02 03 04 05 06 07 08 09
+ex: 80 32 00 00 0A 00 01 02 03 04 05 06 07 08 09
 <- 90 00
 1 <= xy <= 255
 
 Case 3
 ~~~~~~
--> 80 23 ab cd xy
+-> 80 34 ab cd xy
 <- 00 01 02 <- ab cd bytes -> (xy-1) 90 00
 	ab cd = 01 00 <=> xy = 00 (256 bytes)
-ex: 80 23 00 0A 0A
+ex: 80 34 00 0A 0A
 <- 00 01 02 03 04 05 06 07 08 09 90 00
 1 <= ab cd <= 256
 Si ab cd = 01 00 alors xy = 0
 
 Case 4
 ~~~~~~
--> 80 24 ab cd xy 00 <- xy bytes -> (xy-1)
+-> 80 36 ab cd xy 00 <- xy bytes -> (xy-1)
 <- 00 01 <- ab cd bytes -> cd 90 00
 
 Get response (case 4)
@@ -42,7 +42,7 @@ Get response (case 4)
 
 Time Request
 ~~~~~~~~~~~~
--> 80 25 00 xy
+-> 80 38 00 xy
 <- 90 00
 
 Wait a amount of time proportionnal to xy. The card Java VM will send
