@@ -79,6 +79,7 @@ struct f_t {
 	  			   PSCARD_IO_HEADER);
 	RESPONSECODE (*IFDHControl)(DWORD, DWORD, PUCHAR, DWORD, PUCHAR, DWORD, PDWORD);
 	RESPONSECODE (*IFDHICCPresence)(DWORD);
+	int version;
 };
 
 struct f_t f = { NULL, NULL, NULL, NULL, NULL };
@@ -234,12 +235,21 @@ int main(int argc, char *argv[])
 	DLSYM(IFDHControl)
 
 	f.IFDHCreateChannelByName = dlsym(lib_handle, "IFDHCreateChannelByName");
-	if (f.IFDHCreateChannelByName == NULL && device_name)
+	if (f.IFDHCreateChannelByName == NULL)
 	{
-		printf("IFDHCreateChannelByName not defined by the driver and device_name set\n");
-		return 1;
-	}
+		f.version = IFD_HVERSION_2_0;
 
+		/* API v2.0 does not have IFDHCreateChannelByName */
+		if (device_name)
+		{
+			printf("IFDHCreateChannelByName not defined by the driver and device_name set\n");
+			return 1;
+		}
+	}
+	else
+		f.version = IFD_HVERSION_3_0;
+
+	printf("%s:%d\n", __FILE__, __LINE__);
 	ret = handler_test(LUN, channel, device_name);
 	dlclose(lib_handle);
 
@@ -289,6 +299,7 @@ int handler_test(int lun, int channel, char device_name[])
 
 #define IOCTL_SMARTCARD_VENDOR_IFD_EXCHANGE     SCARD_CTL_CODE(1)
 
+	if (f.version >= IFD_HVERSION_3_0)
 	{
 		unsigned char cmd[] = "\x02";
 		unsigned char res[100];
