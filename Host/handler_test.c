@@ -187,11 +187,8 @@ int main(int argc, char *argv[])
 
 		// channel or device_name
 		if (argc - optind >= 2)
-		{
-			channel = atoi(argv[optind+1]);
-			if (channel == 0)
+			if (sscanf(argv[optind+1], "%d", &channel) != 1)
 				device_name = argv[optind+1];
-		}
 	}
 	else
 	{
@@ -199,8 +196,7 @@ int main(int argc, char *argv[])
 		{
 			// channel or device_name
 			case 1:
-				channel = atoi(argv[optind]);
-				if (channel == 0)
+				if (sscanf(argv[optind], "%d", &channel) != 1)
 					device_name = argv[optind];
 				break;
 
