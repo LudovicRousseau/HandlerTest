@@ -195,12 +195,23 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		// channel
-		if (argc - optind >= 1)
+		switch (argc - optind)
 		{
-			channel = atoi(argv[optind]);
-			if (channel == 0)
-				device_name = argv[optind];
+			// channel or device_name
+			case 1:
+				channel = atoi(argv[optind]);
+				if (channel == 0)
+					device_name = argv[optind];
+				break;
+
+			// channel and device_name
+			case 2:
+				channel = atoi(argv[optind]);
+				device_name = argv[optind+1];
+				break;
+
+			default:
+				help(argv[0]);
 		}
 	}
 
