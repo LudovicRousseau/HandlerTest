@@ -23,13 +23,13 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include <winscard.h>
 #include <string.h>
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <PCSC/winscard.h>
+#include <PCSC/ifdhandler.h>
 
-#include "ifdhandler.h"
 #include "debug.h"
 
 #define LUN 0
@@ -41,7 +41,7 @@
 #endif
 
 int handler_test(int lun, int channel, char device_name[]);
-void pcsc_error(int rv);
+char *pcsc_error(int rv);
 int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	PSCARD_IO_HEADER RecvPci,
 	UCHAR s[], DWORD s_length,
@@ -63,13 +63,16 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	printf("--------> OK\n"); \
 	}
 
+#define PCSC_ERROR(x) printf("%s:%d" x ": %s\n", __FILE__, __LINE__, pcsc_error(rv))
+
 struct f_t {
 	RESPONSECODE (*IFDHCreateChannel)(DWORD, DWORD);
 	RESPONSECODE (*IFDHCreateChannelByName)(DWORD, PUCHAR);
 	RESPONSECODE (*IFDHCloseChannel)(DWORD);
 	//RESPONSECODE IFDHGetCapabilities ( DWORD, DWORD, PDWORD, PUCHAR );
 	//RESPONSECODE IFDHSetCapabilities ( DWORD, DWORD, DWORD, PUCHAR );
-	//RESPONSECODE IFDHSetProtocolParameters ( DWORD, DWORD, UCHAR, UCHAR, UCHAR, UCHAR );
+	RESPONSECODE (*IFDHSetProtocolParameters)(DWORD, DWORD, UCHAR, UCHAR,
+		UCHAR, UCHAR);
 	RESPONSECODE (*IFDHPowerICC)(DWORD, DWORD, PUCHAR, PDWORD);
 	RESPONSECODE (*IFDHTransmitToICC)(DWORD, SCARD_IO_HEADER, PUCHAR, 
 	  			   DWORD, PUCHAR, PDWORD, 
@@ -224,6 +227,7 @@ int main(int argc, char *argv[])
 
 	DLSYM(IFDHCreateChannel)
 	DLSYM(IFDHCloseChannel)
+	DLSYM(IFDHSetProtocolParameters)
 	DLSYM(IFDHPowerICC)
 	DLSYM(IFDHTransmitToICC)
 	DLSYM(IFDHICCPresence)
@@ -299,24 +303,35 @@ int handler_test(int lun, int channel, char device_name[])
 			printf("Firmware: %s\n", res);
 		}
 		else
-			pcsc_error(rv);
+			PCSC_ERROR("IFDHControl");
+			//printf("IFDHControl: %s\n", pcsc_error(rv));
 	}
 
 	rv = f.IFDHICCPresence(LUN);
-	pcsc_error(rv);
+	PCSC_ERROR("IFDHICCPresence");
+	if (IFD_ICC_PRESENT != rv)
+		goto end;
 
 	rv = f.IFDHPowerICC(LUN, IFD_RESET, atr, &atrlength);
 	if (rv != IFD_SUCCESS)
 	{
-		printf("IFDHPowerICC: %d\n", rv);
-
+		PCSC_ERROR("IFDHPowerICC");
 		goto end;
 	}
 
 	debug_xxd("ATR: ", atr, atrlength);
 
 	rv = f.IFDHICCPresence(LUN);
-	pcsc_error(rv);
+	PCSC_ERROR("IFDHICCPresence");
+	if (IFD_ICC_PRESENT != rv)
+		goto end;
+
+	rv = f.IFDHSetProtocolParameters(LUN,
+		t1 ? SCARD_PROTOCOL_T1 : SCARD_PROTOCOL_T0,
+		0, 0, 0, 0);
+	PCSC_ERROR("IFDHSetProtocolParameters");
+	if (IFD_SUCCESS != rv)
+		goto end;
 
 	memset(&SendPci, 0, sizeof(SendPci));
 	SendPci.Protocol = t1;
@@ -706,46 +721,48 @@ int handler_test(int lun, int channel, char device_name[])
 end:
 	/* Close */
 	rv = f.IFDHCloseChannel(LUN);
+	PCSC_ERROR("IFDHCloseChannel");
 	if (rv != IFD_SUCCESS)
-	{
-		printf("IFDHCloseChannel: %d\n", rv);
 		return 1;
-	}
 
 	return 0;
 } /* handler_test */
 
-void pcsc_error(int rv)
+char *pcsc_error(int rv)
 {
+	static char strError[80];
+
 	switch (rv)
 	{
 		case IFD_SUCCESS:
-			DEBUG("IFD: success");
+			strcpy(strError, "IFD: success");
 			break;
 
 		case IFD_ICC_PRESENT:
-			DEBUG("IFD: card present");
+			strcpy(strError, "IFD: card present");
 			break;
 
 		case IFD_ICC_NOT_PRESENT:
-			DEBUG("IFD: card _NOT_ present");
+			strcpy(strError, "IFD: card _NOT_ present");
 			break;
 			
 		case IFD_COMMUNICATION_ERROR:
-			DEBUG("IFD: communication error");
+			strcpy(strError, "IFD: communication error");
 			break;
 
 		case IFD_PROTOCOL_NOT_SUPPORTED:
-			DEBUG("IFD: protocol not supported");
+			strcpy(strError, "IFD: protocol not supported");
 			break;
 
 		case IFD_RESPONSE_TIMEOUT:
-			DEBUG("IFD: response timeout");
+			strcpy(strError, "IFD: response timeout");
 			break;
 
 		default:
-			DEBUG2("IFD: undocumented error: 0x%X", rv);
+			snprintf(strError, sizeof(strError)-1, "IFD: undocumented error: 0x%X", rv);
 	}
+
+	return strError;
 } /* pcsc_error */
 
 int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
@@ -764,7 +781,7 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	debug_xxd("Received: ", r, *r_length);
 	if (rv)
 	{
-		pcsc_error(rv);
+		PCSC_ERROR("IFDHTransmitToICC");
 		return 1;
 	}
 
