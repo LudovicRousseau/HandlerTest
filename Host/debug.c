@@ -26,7 +26,7 @@ void debug_msg(char *fmt, ...)
 	vsnprintf(DebugBuffer, DEBUG_BUF_SIZE, fmt, argptr);
 	va_end(argptr);
 
-	fprintf(stderr, "%s\n", DebugBuffer);
+	fprintf(stdout, "%s\n", DebugBuffer);
 } /* debug_msg */
 
 void debug_xxd(const char *msg, const unsigned char *buffer, const int len)
@@ -45,6 +45,6 @@ void debug_xxd(const char *msg, const unsigned char *buffer, const int len)
 		c += strlen(c);
 	}
 
-	fprintf(stderr, "%s\n", DebugBuffer);
+	fprintf(stdout, "%s\n", DebugBuffer);
 } /* debug_xxd */
 
