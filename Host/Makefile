@@ -1,6 +1,6 @@
 # $Id$
 
-CFLAGS += -O2 -g -Wall -I/usr/local/include/
+CFLAGS += -O2 -g -Wall `pkg-config --cflags libpcsclite`
 
 # -ldl to use ldopen(), etc.
 # -rdynamic so that the driver can use debug_msg()
