@@ -4,13 +4,11 @@ CFLAGS += -O2 -g -Wall -I/usr/local/include/
 
 # -ldl to use ldopen(), etc.
 # -rdynamic so that the driver can use debug_msg()
-ifeq ($(OSTYPE),linux*)
+
+# GNU/Linux
 LDFLAGS = -ldl -rdynamic
-else
-ifeq ($(OSTYPE),*bsd*)
-LDFLAGS = -rdynamic
-endif
-endif
+# *BSD
+#LDFLAGS = -rdynamic
 
 targets = handler_test.o debug.o tokenparser.o
 
