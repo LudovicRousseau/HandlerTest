@@ -90,6 +90,9 @@ int main(int argc, char *argv[])
 			printf("example: %s /usr/lib/pcsc/drivers/serial/libGemPC410.so 2\n",
 				argv[0]);
 			printf(" to load the libGemPC410 and use /dev/pcsc/2\n");
+			printf("or define environment variable LIB\n");
+			printf(" LIB=/usr/lib/pcsc/drivers/serial/libGemPC410.so %s\n",
+				argv[0]);
 			return 1;
 		}
 
@@ -137,13 +140,14 @@ int handler_test(int lun, int channel)
 	UCHAR e[MAX_BUFFER_SIZE];	// expected result
 	int e_length;	// expected result length
 	char *text = NULL;
+	int time;
 
 	rv = f.IFDHCreateChannel(lun, channel);
 
 	if (rv != IFD_SUCCESS)
 	{
 		printf("IFDHCreateChannel: %d\n", rv);
-		printf("\nAre you sure a reader is connected?\n");
+		printf("\nAre you sure a CCID reader is connected?\n");
 		printf("and that you have read/write permission on the device?\n");
 		return 1;
 	}
@@ -182,6 +186,26 @@ int handler_test(int lun, int channel)
 	s[10] = 0xFF;
 
 	dwSendLength = 11;
+	dwRecvLength = sizeof(r);
+
+	e[0] = 0x90;
+	e[1] = 0x00;
+	e_length = 2;
+
+	if (exchange(text, lun, SendPci, &RecvPci,
+		s, dwSendLength, r, &dwRecvLength, e, e_length))
+		goto end;
+
+	/* Time Request */
+	text = "Time Request";
+	time = 10;
+
+	s[0] = 0x80;
+	s[1] = 0x25;
+	s[2] = 0x00;
+	s[3] = time;
+
+	dwSendLength = 4;
 	dwRecvLength = sizeof(r);
 
 	e[0] = 0x90;
