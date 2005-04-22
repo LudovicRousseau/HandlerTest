@@ -18,7 +18,7 @@
 
 static char DebugBuffer[DEBUG_BUF_SIZE];
 
-void debug_msg(char *fmt, ...)
+void log_msg(const int priority, char *fmt, ...)
 {
 	va_list argptr;
 
@@ -27,9 +27,10 @@ void debug_msg(char *fmt, ...)
 	va_end(argptr);
 
 	fprintf(stdout, "%s\n", DebugBuffer);
-} /* debug_msg */
+} /* log_msg */
 
-void debug_xxd(const char *msg, const unsigned char *buffer, const int len)
+void log_xxd(const int priority, const char *msg, const unsigned char *buffer,
+	const int len)
 {
 	int i;
 	unsigned char *c, *debug_buf_end;
@@ -46,5 +47,5 @@ void debug_xxd(const char *msg, const unsigned char *buffer, const int len)
 	}
 
 	fprintf(stdout, "%s\n", DebugBuffer);
-} /* debug_xxd */
+} /* log_xxd */
 
