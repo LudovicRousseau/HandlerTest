@@ -309,7 +309,7 @@ int handler_test(int lun, int channel, char device_name[])
 			cmd, sizeof(cmd)-1, res, sizeof(res), &length);
 		if (IFD_SUCCESS == rv)
 		{
-			debug_xxd("Firmware: ", res, length);
+			log_xxd(0, "Firmware: ", res, length);
 			res[length] = '\0';
 			printf("Firmware: %s\n", res);
 		}
@@ -330,7 +330,7 @@ int handler_test(int lun, int channel, char device_name[])
 		goto end;
 	}
 
-	debug_xxd("ATR: ", atr, atrlength);
+	log_xxd(0, "ATR: ", atr, atrlength);
 
 	rv = f.IFDHICCPresence(LUN);
 	PCSC_ERROR("IFDHICCPresence");
@@ -793,11 +793,11 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	int rv, i;
 
 	printf("\n%s\n", text);
-	debug_xxd("Sent: ", s, s_length);
+	log_xxd(0, "Sent: ", s, s_length);
 
 	rv = f.IFDHTransmitToICC(lun, SendPci, s, s_length, r, r_length, RecvPci);
 
-	debug_xxd("Received: ", r, *r_length);
+	log_xxd(0, "Received: ", r, *r_length);
 	if (rv)
 	{
 		PCSC_ERROR("IFDHTransmitToICC");
