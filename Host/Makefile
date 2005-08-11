@@ -22,6 +22,9 @@ clean:
 	touch .dependencies
 	rm -f handler_test $(targets)
 
+.dependencies:
+	touch .dependencies
+
 distclean: clean
 	rm -f dep_stamp
 	rm -f tags
