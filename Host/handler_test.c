@@ -67,7 +67,7 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 
 struct f_t {
 	RESPONSECODE (*IFDHCreateChannel)(DWORD, DWORD);
-	RESPONSECODE (*IFDHCreateChannelByName)(DWORD, PUCHAR);
+	RESPONSECODE (*IFDHCreateChannelByName)(DWORD, LPTSTR);
 	RESPONSECODE (*IFDHCloseChannel)(DWORD);
 	//RESPONSECODE IFDHGetCapabilities ( DWORD, DWORD, PDWORD, PUCHAR );
 	//RESPONSECODE IFDHSetCapabilities ( DWORD, DWORD, DWORD, PUCHAR );
