@@ -33,7 +33,7 @@ void log_xxd(const int priority, const char *msg, const unsigned char *buffer,
 	const int len)
 {
 	int i;
-	unsigned char *c, *debug_buf_end;
+	char *c, *debug_buf_end;
 
 	debug_buf_end = DebugBuffer + DEBUG_BUF_SIZE - 5;
 
