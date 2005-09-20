@@ -38,6 +38,7 @@ public class readertest extends javacard.framework.Applet
     private final static byte INS_CASE_3_UNBOUND = (byte)0x3C;
     private final static byte INS_CASE_4_UNBOUND = (byte)0x3E;
     private final static byte INS_VERIFY_PIN = (byte)0x20;
+    private final static byte INS_VERIFY_PIN_DUMP = (byte)0x40;
 
     private final static byte pcValueTable[]  = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -58,6 +59,7 @@ public class readertest extends javacard.framework.Applet
     (byte) 0xF0, (byte) 0xF1, (byte) 0xF2, (byte) 0xF3, (byte) 0xF4, (byte) 0xF5, (byte) 0xF6, (byte) 0xF7, (byte) 0xF8, (byte) 0xF9, (byte) 0xFA, (byte) 0xFB, (byte) 0xFC, (byte) 0xFD, (byte) 0xFE, (byte) 0xFF
      };
 
+	private byte pbMemory[];
 
     /**
      * readertest default constructor
@@ -69,6 +71,10 @@ public class readertest extends javacard.framework.Applet
 			this.register();
 		else
 			this.register(buffer, (short)(offset + 1), buffer[offset]);
+
+		pbMemory = new byte[256+4];
+		for (short i=0; i<pbMemory.length; i++)
+			pbMemory[i] = 0x42;
     }
 
     /**
@@ -288,6 +294,10 @@ public class readertest extends javacard.framework.Applet
             break;
 
             case INS_VERIFY_PIN:
+	      // Memorize APDU header
+	      Util.arrayCopy(apduBuffer, (short)0, pbMemory, (short)0,
+		(short)4);
+
               // Incoming Data length
               bytesLeft = (short) (apduBuffer[ISO7816.OFFSET_LC]
                                                & 0x00FF);
@@ -298,6 +308,11 @@ public class readertest extends javacard.framework.Applet
               // Get the Data
               index=0;
               readCount = apdu.setIncomingAndReceive();
+
+	      // Memorize the command
+	      Util.arrayCopy(apduBuffer, (short)ISO7816.OFFSET_CDATA,
+		  pbMemory, (short)ISO7816.OFFSET_CDATA, (short)readCount);
+
               while ( bytesLeft > 0 )
               {
                 for (short i=0; i<readCount; i++)
@@ -312,7 +327,24 @@ public class readertest extends javacard.framework.Applet
                 }
                 bytesLeft -= readCount;
                 readCount = apdu.receiveBytes (ISO7816.OFFSET_CDATA);
-              }
+
+		// Memorize the command
+		Util.arrayCopy(apduBuffer, (short)(ISO7816.OFFSET_CDATA+index),
+		    pbMemory, (short)(ISO7816.OFFSET_CDATA+index),
+		    (short)readCount);
+	      }
+
+	      // Memorise the command
+	      Util.arrayCopy(apduBuffer, (short)0, pbMemory, (short)0,
+		  (short)(bytesLeft+4));
+            break;
+
+            case INS_VERIFY_PIN_DUMP:
+              // Outgoing Data length
+              le = apdu.setOutgoing();
+
+              apdu.setOutgoingLength (le);
+              apdu.sendBytesLong(pbMemory, (short)0, le);
             break;
 
             default:
