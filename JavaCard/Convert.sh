@@ -20,7 +20,7 @@
 source config.sh
 
 # System dependent data
-JAVA_HOME=${JAVA_HOME:-/usr/lib/j2sdk1.3}
+JAVA_HOME=${JAVA_HOME:-/usr/lib/j2sdk1.4-sun}
 export JAVA_HOME
 
 JC21=${JC21:-/usr/local/tools/jdk/java_card_kit-2_1_2}

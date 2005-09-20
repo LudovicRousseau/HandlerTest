@@ -20,7 +20,7 @@
 source config.sh
 
 # System dependent data
-JAVA_HOME=${JAVA_HOME:-/usr/lib/j2sdk1.3}
+JAVA_HOME=${JAVA_HOME:-/usr/lib/j2sdk1.4-sun}
 export JAVA_HOME
 
 JC21=${JC21:-/usr/local/tools/jdk/java_card_kit-2_1_2}
@@ -38,5 +38,5 @@ fi
 # print executed commands
 set -x
 
-$JAVAC -verbose -classpath $JC21/lib/api21.jar -g -d "$OUTPUT_DIR" $APPLET_SRC
+$JAVAC -target 1.1 -verbose -classpath $JC21/lib/api21.jar -g -d "$OUTPUT_DIR" $APPLET_SRC
 
