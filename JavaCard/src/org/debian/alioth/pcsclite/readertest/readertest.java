@@ -357,11 +357,6 @@ public class readertest extends javacard.framework.Applet
               apdu.sendBytesLong(pbMemory, (short)0, pbMemoryLength);
             break;
 
-            default:
-                // The INS code is not supported by the dispatcher
-                ISOException.throwIt( ISO7816.SW_INS_NOT_SUPPORTED ) ;
-            break ;
-
             case INS_MODIFY_PIN:
               // Memorize APDU header
               Util.arrayCopy(apduBuffer, (short)0, pbMemory, (short)0,
@@ -405,6 +400,10 @@ public class readertest extends javacard.framework.Applet
 
             break;
 
+            default:
+                // The INS code is not supported by the dispatcher
+                ISOException.throwIt( ISO7816.SW_INS_NOT_SUPPORTED ) ;
+            break ;
         }
     }
 }
