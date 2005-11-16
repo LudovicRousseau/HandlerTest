@@ -39,6 +39,7 @@ public class readertest extends javacard.framework.Applet
     private final static byte INS_CASE_4_UNBOUND = (byte)0x3E;
     private final static byte INS_VERIFY_PIN = (byte)0x20;
     private final static byte INS_VERIFY_PIN_DUMP = (byte)0x40;
+    private final static byte INS_MODIFY_PIN = (byte)0x24;
 
     private final static byte pcValueTable[]  = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -350,6 +351,50 @@ public class readertest extends javacard.framework.Applet
                 // The INS code is not supported by the dispatcher
                 ISOException.throwIt( ISO7816.SW_INS_NOT_SUPPORTED ) ;
             break ;
+
+            case INS_MODIFY_PIN:
+	      // Memorize APDU header
+	      Util.arrayCopy(apduBuffer, (short)0, pbMemory, (short)0,
+		(short)5);
+
+              // Incoming Data length
+              bytesLeft = (short) (apduBuffer[ISO7816.OFFSET_LC] & 0x00FF);
+              if ( bytesLeft == 0 )
+              {
+                ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
+              }
+              // Get the Data
+              index=0;
+              readCount = apdu.setIncomingAndReceive();
+
+	      // Memorize the command
+	      Util.arrayCopy(apduBuffer, (short)ISO7816.OFFSET_CDATA,
+		  pbMemory, (short)ISO7816.OFFSET_CDATA, (short)readCount);
+	      pbMemoryLength = (short)(bytesLeft+5);
+
+              while ( bytesLeft > 0 )
+              {
+                for (short i=0; i<readCount; i++)
+                {
+                  if ( ((short)(apduBuffer[(short)(ISO7816.OFFSET_CDATA+i)] & 0x00FF))
+                         != (short)(i + 0x31))
+                  {
+                    short SW = (short) (0x6A00 + i);
+                    ISOException.throwIt( SW );
+                  }
+                  index++;
+                }
+                bytesLeft -= readCount;
+                readCount = apdu.receiveBytes (ISO7816.OFFSET_CDATA);
+
+		// Memorize the command
+		Util.arrayCopy(apduBuffer, (short)(ISO7816.OFFSET_CDATA+index),
+		    pbMemory, (short)(ISO7816.OFFSET_CDATA+index),
+		    (short)readCount);
+	      }
+
+            break;
+
         }
     }
 }
