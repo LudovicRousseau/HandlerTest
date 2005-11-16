@@ -62,6 +62,8 @@ public class readertest extends javacard.framework.Applet
 
 	private byte pbMemory[];
 	private short pbMemoryLength;
+	private static final byte RETRY_COUNTER_MAX_VALUE = 3;
+	private byte retryCounter = RETRY_COUNTER_MAX_VALUE;
 
     /**
      * readertest default constructor
@@ -305,7 +307,8 @@ public class readertest extends javacard.framework.Applet
                                                & 0x00FF);
               if ( bytesLeft == 0 )
               {
-                ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
+		// send the number of tries left
+                ISOException.throwIt( (short)(0x63C0 + retryCounter) );
               }
               // Get the Data
               index=0;
@@ -323,6 +326,10 @@ public class readertest extends javacard.framework.Applet
                   if ( ((short)(apduBuffer[(short)(ISO7816.OFFSET_CDATA+i)] & 0x00FF))
                          != (short)(i + 0x31))
                   {
+		    // decrement the retry counter
+		    if (retryCounter > 0)
+			retryCounter--;
+
                     short SW = (short) (0x6A00 + i);
                     ISOException.throwIt( SW );
                   }
@@ -330,6 +337,9 @@ public class readertest extends javacard.framework.Applet
                 }
                 bytesLeft -= readCount;
                 readCount = apdu.receiveBytes (ISO7816.OFFSET_CDATA);
+
+		// reset the retry counter
+		retryCounter = RETRY_COUNTER_MAX_VALUE;
 
 		// Memorize the command
 		Util.arrayCopy(apduBuffer, (short)(ISO7816.OFFSET_CDATA+index),
