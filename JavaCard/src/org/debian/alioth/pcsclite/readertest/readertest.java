@@ -60,10 +60,10 @@ public class readertest extends javacard.framework.Applet
     (byte) 0xF0, (byte) 0xF1, (byte) 0xF2, (byte) 0xF3, (byte) 0xF4, (byte) 0xF5, (byte) 0xF6, (byte) 0xF7, (byte) 0xF8, (byte) 0xF9, (byte) 0xFA, (byte) 0xFB, (byte) 0xFC, (byte) 0xFD, (byte) 0xFE, (byte) 0xFF
      };
 
-	private byte pbMemory[];
-	private short pbMemoryLength;
-	private static final byte RETRY_COUNTER_MAX_VALUE = 3;
-	private byte retryCounter = RETRY_COUNTER_MAX_VALUE;
+    private byte pbMemory[];
+    private short pbMemoryLength;
+    private static final byte RETRY_COUNTER_MAX_VALUE = 3;
+    private byte retryCounter = RETRY_COUNTER_MAX_VALUE;
 
     /**
      * readertest default constructor
@@ -71,14 +71,14 @@ public class readertest extends javacard.framework.Applet
      */
     protected readertest(byte[] buffer, short offset, byte length)
     {
-		if (buffer[offset] == 0)
-			this.register();
-		else
-			this.register(buffer, (short)(offset + 1), buffer[offset]);
+        if (buffer[offset] == 0)
+            this.register();
+        else
+            this.register(buffer, (short)(offset + 1), buffer[offset]);
 
-		pbMemory = new byte[256+4];
-		for (short i=0; i<pbMemory.length; i++)
-			pbMemory[i] = 0x42;
+        pbMemory = new byte[256+4];
+        for (short i=0; i<pbMemory.length; i++)
+            pbMemory[i] = 0x42;
     }
 
     /**
@@ -121,10 +121,10 @@ public class readertest extends javacard.framework.Applet
     {
         // get the APDU buffer
         byte[] apduBuffer = apdu.getBuffer();
-		short bytesLeft;
-		short le;
-		short index;
-		short readCount;
+        short bytesLeft;
+        short le;
+        short index;
+        short readCount;
 
         // ignore the applet select command dispached to the process
         if (selectingApplet())
@@ -139,7 +139,7 @@ public class readertest extends javacard.framework.Applet
                 ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
               }
               break;
-			  
+
             case INS_CASE_2:
             case INS_CASE_2_ODD:
               // Incoming Data length
@@ -216,21 +216,21 @@ public class readertest extends javacard.framework.Applet
                 readCount = apdu.receiveBytes (ISO7816.OFFSET_CDATA);
               }
               // Outgoing Data length
-			  apdu.setOutgoing();
+              apdu.setOutgoing();
               requiredLe = Util.getShort(apduBuffer,ISO7816.OFFSET_P1);
               apdu.setOutgoingLength (requiredLe);
               apdu.sendBytesLong(pcValueTable, (short) 0x0000, requiredLe);
             break;
 
-			case INS_TIME_REQUEST:
-				short waitTime = (short) (apduBuffer[ISO7816.OFFSET_P2] &
-						0x00FF);
+            case INS_TIME_REQUEST:
+                short waitTime = (short) (apduBuffer[ISO7816.OFFSET_P2] &
+                        0x00FF);
 
-				for (short i=0; i<waitTime; i++)
-					for (short j=0; j<1000; j++)
-						;
-						
-			break;
+                for (short i=0; i<waitTime; i++)
+                    for (short j=0; j<1000; j++)
+                        ;
+
+            break;
 
             case INS_CASE_2_UNBOUND:
               // Incoming Data length
@@ -298,26 +298,26 @@ public class readertest extends javacard.framework.Applet
             break;
 
             case INS_VERIFY_PIN:
-	      // Memorize APDU header
-	      Util.arrayCopy(apduBuffer, (short)0, pbMemory, (short)0,
-		(short)5);
+              // Memorize APDU header
+              Util.arrayCopy(apduBuffer, (short)0, pbMemory, (short)0,
+                  (short)5);
 
               // Incoming Data length
               bytesLeft = (short) (apduBuffer[ISO7816.OFFSET_LC]
                                                & 0x00FF);
               if ( bytesLeft == 0 )
               {
-		// send the number of tries left
+                // send the number of tries left
                 ISOException.throwIt( (short)(0x63C0 + retryCounter) );
               }
               // Get the Data
               index=0;
               readCount = apdu.setIncomingAndReceive();
 
-	      // Memorize the command
-	      Util.arrayCopy(apduBuffer, (short)ISO7816.OFFSET_CDATA,
-		  pbMemory, (short)ISO7816.OFFSET_CDATA, (short)readCount);
-	      pbMemoryLength = (short)(bytesLeft+5);
+              // Memorize the command
+              Util.arrayCopy(apduBuffer, (short)ISO7816.OFFSET_CDATA,
+              pbMemory, (short)ISO7816.OFFSET_CDATA, (short)readCount);
+              pbMemoryLength = (short)(bytesLeft+5);
 
               while ( bytesLeft > 0 )
               {
@@ -326,9 +326,9 @@ public class readertest extends javacard.framework.Applet
                   if ( ((short)(apduBuffer[(short)(ISO7816.OFFSET_CDATA+i)] & 0x00FF))
                          != (short)(i + 0x31))
                   {
-		    // decrement the retry counter
-		    if (retryCounter > 0)
-			retryCounter--;
+                    // decrement the retry counter
+                    if (retryCounter > 0)
+                        retryCounter--;
 
                     short SW = (short) (0x6A00 + i);
                     ISOException.throwIt( SW );
@@ -338,14 +338,14 @@ public class readertest extends javacard.framework.Applet
                 bytesLeft -= readCount;
                 readCount = apdu.receiveBytes (ISO7816.OFFSET_CDATA);
 
-		// reset the retry counter
-		retryCounter = RETRY_COUNTER_MAX_VALUE;
+                // reset the retry counter
+                retryCounter = RETRY_COUNTER_MAX_VALUE;
 
-		// Memorize the command
-		Util.arrayCopy(apduBuffer, (short)(ISO7816.OFFSET_CDATA+index),
-		    pbMemory, (short)(ISO7816.OFFSET_CDATA+index),
-		    (short)readCount);
-	      }
+                // Memorize the command
+                Util.arrayCopy(apduBuffer, (short)(ISO7816.OFFSET_CDATA+index),
+                    pbMemory, (short)(ISO7816.OFFSET_CDATA+index),
+                    (short)readCount);
+          }
 
             break;
 
@@ -363,9 +363,9 @@ public class readertest extends javacard.framework.Applet
             break ;
 
             case INS_MODIFY_PIN:
-	      // Memorize APDU header
-	      Util.arrayCopy(apduBuffer, (short)0, pbMemory, (short)0,
-		(short)5);
+              // Memorize APDU header
+              Util.arrayCopy(apduBuffer, (short)0, pbMemory, (short)0,
+                  (short)5);
 
               // Incoming Data length
               bytesLeft = (short) (apduBuffer[ISO7816.OFFSET_LC] & 0x00FF);
@@ -377,10 +377,10 @@ public class readertest extends javacard.framework.Applet
               index=0;
               readCount = apdu.setIncomingAndReceive();
 
-	      // Memorize the command
-	      Util.arrayCopy(apduBuffer, (short)ISO7816.OFFSET_CDATA,
-		  pbMemory, (short)ISO7816.OFFSET_CDATA, (short)readCount);
-	      pbMemoryLength = (short)(bytesLeft+5);
+              // Memorize the command
+              Util.arrayCopy(apduBuffer, (short)ISO7816.OFFSET_CDATA,
+                  pbMemory, (short)ISO7816.OFFSET_CDATA, (short)readCount);
+              pbMemoryLength = (short)(bytesLeft+5);
 
               while ( bytesLeft > 0 )
               {
@@ -397,11 +397,11 @@ public class readertest extends javacard.framework.Applet
                 bytesLeft -= readCount;
                 readCount = apdu.receiveBytes (ISO7816.OFFSET_CDATA);
 
-		// Memorize the command
-		Util.arrayCopy(apduBuffer, (short)(ISO7816.OFFSET_CDATA+index),
-		    pbMemory, (short)(ISO7816.OFFSET_CDATA+index),
-		    (short)readCount);
-	      }
+                // Memorize the command
+                Util.arrayCopy(apduBuffer, (short)(ISO7816.OFFSET_CDATA+index),
+                    pbMemory, (short)(ISO7816.OFFSET_CDATA+index),
+                    (short)readCount);
+              }
 
             break;
 
