@@ -60,6 +60,7 @@ public class readertest extends javacard.framework.Applet
      };
 
 	private byte pbMemory[];
+	private short pbMemoryLength;
 
     /**
      * readertest default constructor
@@ -296,7 +297,7 @@ public class readertest extends javacard.framework.Applet
             case INS_VERIFY_PIN:
 	      // Memorize APDU header
 	      Util.arrayCopy(apduBuffer, (short)0, pbMemory, (short)0,
-		(short)4);
+		(short)5);
 
               // Incoming Data length
               bytesLeft = (short) (apduBuffer[ISO7816.OFFSET_LC]
@@ -312,6 +313,7 @@ public class readertest extends javacard.framework.Applet
 	      // Memorize the command
 	      Util.arrayCopy(apduBuffer, (short)ISO7816.OFFSET_CDATA,
 		  pbMemory, (short)ISO7816.OFFSET_CDATA, (short)readCount);
+	      pbMemoryLength = (short)(bytesLeft+5);
 
               while ( bytesLeft > 0 )
               {
@@ -334,17 +336,14 @@ public class readertest extends javacard.framework.Applet
 		    (short)readCount);
 	      }
 
-	      // Memorise the command
-	      Util.arrayCopy(apduBuffer, (short)0, pbMemory, (short)0,
-		  (short)(bytesLeft+4));
             break;
 
             case INS_VERIFY_PIN_DUMP:
               // Outgoing Data length
               le = apdu.setOutgoing();
 
-              apdu.setOutgoingLength (le);
-              apdu.sendBytesLong(pbMemory, (short)0, le);
+              apdu.setOutgoingLength (pbMemoryLength);
+              apdu.sendBytesLong(pbMemory, (short)0, pbMemoryLength);
             break;
 
             default:
