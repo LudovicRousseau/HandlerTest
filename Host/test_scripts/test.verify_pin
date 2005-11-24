@@ -11,8 +11,23 @@
 reset
 
 # Select applet
-00 A4 04 00 06 A0 00 00 00 18 FF
+00 A4 04 00 07 A0 00 00 00 18 FF 01
+
+# get retry counter
+00 20 00 00 00
+
+# verify PIN (wrong pin)
+00 20 00 00 04 31 32 31 31
+
+# get retry counter
+00 20 00 00 00
 
 # verify PIN
 00 20 00 00 04 31 32 33 34
+
+# verify PIN dump
+00 40 00 00 09
+
+# get retry counter
+00 20 00 00 00
 
