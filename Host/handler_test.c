@@ -53,16 +53,6 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	DEBUG("dlsym: " # func); \
 	return 1; }
 
-#define COMPARE(r, e, l) { int i; \
-	for (i=0; i<l; i++) \
-		if (r[i] != e[i]) \
-		{ \
-			printf("ERROR byte %d: expected 0x%02X, got 0x%02X\n", i, e[i], r[i]);\
-			return 1; \
-		} \
-	printf("--------> OK\n"); \
-	}
-
 #define PCSC_ERROR(x) printf("%s:%d " x ": %s\n", __FILE__, __LINE__, ifd_error(rv))
 
 struct f_t {
