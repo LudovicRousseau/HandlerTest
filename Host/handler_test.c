@@ -794,6 +794,13 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 		return 1;
 	}
 
+	/* check the received length */
+	if (*r_length != e_length)
+	{
+		printf("ERROR: Expected %d bytes and received %ld\n", e_length, *r_length);
+		return 1;
+	}
+
 	/* check the received data */
 	for (i=0; i<*r_length; i++)
 		if (r[i] != e[i])
@@ -801,13 +808,6 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 			printf("ERROR byte %d: expected 0x%02X, got 0x%02X\n", i, e[i], r[i]);
 			return 1;
 		}
-
-	/* check the received length */
-	if (*r_length != e_length)
-	{
-		printf("ERROR: Expected %d bytes and received %ld\n", e_length, *r_length);
-		return 1;
-	}
 
 	printf("--------> OK\n");
 
