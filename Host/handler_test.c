@@ -803,7 +803,7 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	}
 
 	/* check the received data */
-	for (i=0; i<*r_length; i++)
+	for (i=0; i<e_length; i++)
 		if (r[i] != e[i])
 		{
 			printf("\33[01;31mERROR byte %d: expected 0x%02X, got 0x%02X\n\33[0m",
