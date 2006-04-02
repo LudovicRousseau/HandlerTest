@@ -9,6 +9,7 @@ Host/Makefile
 Host/parser.h
 Host/test_scripts/test.script
 Host/test_scripts/test.script2
+Host/test_scripts/test.verify_pin
 Host/TODO
 Host/tokenparser.l
 JavaCard/Cmd.txt
