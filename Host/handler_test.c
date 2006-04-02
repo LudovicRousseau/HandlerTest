@@ -86,6 +86,7 @@ char cases = 0;
 char tpdu = FALSE;
 char apdu = FALSE;
 char t1 = FALSE;
+char stop_on_error = TRUE;
 
 /* getopt(3) */
 extern char *optarg;
@@ -104,6 +105,7 @@ void help(char *argv0)
 	printf("  -A : use APDU\n");
 	printf("  -T : use TPDU\n");
 	printf("  -Z : use T=1 instead of default T=0\n");
+	printf("  -n : non stop, do not stop on the first error\n");
 	printf("  libname : driver to load\n");
 	printf("  channel : channel to use (for a serial driver)\n");
 	printf("  device_name : name to use in IFDHCreateChannelByName\n");
@@ -126,7 +128,7 @@ int main(int argc, char *argv[])
 	int opt;
 	char *device_name = NULL;
 
-	while ((opt = getopt(argc, argv, "ft:1234ATZ")) != EOF)
+	while ((opt = getopt(argc, argv, "ft:1234ATZn")) != EOF)
 	{
 		switch (opt)
 		{
@@ -161,6 +163,11 @@ int main(int argc, char *argv[])
 			case 'Z':
 				t1 = TRUE;
 				printf("Use T=1\n");
+				break;
+
+			case 'n':
+				stop_on_error = FALSE;
+				printf("Use non stop mode\n");
 				break;
 
 			default:
@@ -739,6 +746,10 @@ char *ifd_error(int rv)
 			strcpy(strError, "IFD: success");
 			break;
 
+		case IFD_ERROR_PTS_FAILURE:
+			strcpy(strError, "IFD: PTS failure");
+			break;
+
 		case IFD_ICC_PRESENT:
 			strcpy(strError, "IFD: card present");
 			break;
@@ -799,7 +810,8 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	{
 		printf("\33[01;31mERROR: Expected %d bytes and received %ld\33[0m\n",
 			e_length, *r_length);
-		return 1;
+		if (stop_on_error)
+			return 1;
 	}
 
 	/* check the received data */
@@ -808,7 +820,9 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 		{
 			printf("\33[01;31mERROR byte %d: expected 0x%02X, got 0x%02X\n\33[0m",
 				i, e[i], r[i]);
-			return 1;
+			if (stop_on_error)
+				return 1;
+			break;
 		}
 
 	printf("--------> OK\n");
