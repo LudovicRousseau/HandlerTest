@@ -73,6 +73,18 @@ to the reader.
 History
 =======
 
+0.3.0 - 2 April 2006, Ludovic Rousseau
+    - Java Card applet:
+      - the INS byte shall not be odd. It is forbidden by ISO 7816-4 ch.
+        5.4.2 Instruction byte. Instead of using INS from 21 to 25 we
+        now use from 30 to 3E with only even values.
+      - add VERIFY PIN command
+      - add VERIFY PIN dump command
+      - manage an (unsecure) retryCounter
+    - support of TPDU
+    - support of T=1
+    - support of IFDHCreateChannelByName (ifd handler API v3.0)
+
 0.2.0 - 4 September 2003, Ludovic Rousseau
     - add support of time request (reported by CCID readers)
     - include the JavaCard applet source code written by Jean-Luc Giraud
