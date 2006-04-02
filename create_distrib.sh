@@ -29,7 +29,9 @@ make distclean &> /dev/null
 echo "done"
 
 # generate Changelog
-svn2cl.sh --group-by-day --include-rev | sed -e s+/trunk/HandlerTest/++g > Changelog
+echo -n "generate Changelog..."
+svn2cl.sh --group-by-day --include-rev --stdout | sed -e s+/trunk/HandlerTest/++g > Changelog
+echo "done"
 
 present_files=$(tempfile)
 manifest_files=$(tempfile)
