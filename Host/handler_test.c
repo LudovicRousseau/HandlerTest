@@ -32,6 +32,8 @@
 
 #include "debug.h"
 
+#define CONTACTLESS
+
 #define LUN 0
 #define ENV_LIBNAME "LIB"
 
@@ -47,6 +49,8 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	UCHAR s[], DWORD s_length,
 	UCHAR r[], PDWORD r_length,
 	UCHAR e[], int e_length);
+int extended_apdu(int lun);
+int short_apdu(int lun);
 
 #define DLSYM(func)  f.func = dlsym(lib_handle, "" # func); \
 	if (f.func == NULL) { \
@@ -87,6 +91,7 @@ char tpdu = FALSE;
 char apdu = FALSE;
 char t1 = FALSE;
 char stop_on_error = TRUE;
+char extended = FALSE;
 
 /* getopt(3) */
 extern char *optarg;
@@ -102,6 +107,7 @@ void help(char *argv0)
 	printf("  -2 : test CASE 2 APDU\n");
 	printf("  -3 : test CASE 3 APDU\n");
 	printf("  -4 : test CASE 4 APDU\n");
+	printf("  -e : test extended APDU\n");
 	printf("  -A : use APDU\n");
 	printf("  -T : use TPDU\n");
 	printf("  -Z : use T=1 instead of default T=0\n");
@@ -128,7 +134,7 @@ int main(int argc, char *argv[])
 	int opt;
 	char *device_name = NULL;
 
-	while ((opt = getopt(argc, argv, "ft:1234ATZn")) != EOF)
+	while ((opt = getopt(argc, argv, "ft:1234ATZne")) != EOF)
 	{
 		switch (opt)
 		{
@@ -138,6 +144,11 @@ int main(int argc, char *argv[])
 			case '4':
 				cases |= 1 << (opt - '1');
 				printf("test case: %c\n", opt);
+				break;
+
+			case 'e':
+				extended = TRUE;
+				printf("text extended APDU\n");
 				break;
 
 			case 'f':
@@ -255,17 +266,9 @@ int main(int argc, char *argv[])
 
 int handler_test(int lun, int channel, char device_name[])
 {
-	int rv, i, len_i, len_o;
+	int rv;
 	UCHAR atr[MAX_ATR_SIZE];
 	DWORD atrlength;
-	UCHAR s[MAX_BUFFER_SIZE], r[MAX_BUFFER_SIZE];
-	DWORD dwSendLength, dwRecvLength;
-	SCARD_IO_HEADER SendPci, RecvPci;
-	UCHAR e[MAX_BUFFER_SIZE];	// expected result
-	int e_length;	// expected result length
-	char *text = NULL;
-	int time;
-	int start, end;
 
 	if (device_name)
 	{
@@ -340,6 +343,140 @@ int handler_test(int lun, int channel, char device_name[])
 	PCSC_ERROR("IFDHSetProtocolParameters");
 	if ((IFD_SUCCESS != rv) && (IFD_NOT_SUPPORTED != rv))
 		goto end;
+
+	if (extended)
+		extended_apdu(lun);
+	else
+		short_apdu(lun);
+
+end:
+	/* Close */
+	rv = f.IFDHCloseChannel(LUN);
+	PCSC_ERROR("IFDHCloseChannel");
+	if (rv != IFD_SUCCESS)
+		return 1;
+
+	return 0;
+} /* handler_test */
+
+int extended_apdu(int lun)
+{
+	int i, len_i, len_o;
+	SCARD_IO_HEADER SendPci, RecvPci;
+	UCHAR s[MAX_BUFFER_SIZE_EXTENDED], r[MAX_BUFFER_SIZE_EXTENDED];
+	DWORD dwSendLength, dwRecvLength;
+	UCHAR e[MAX_BUFFER_SIZE_EXTENDED];	// expected result
+	int e_length;	// expected result length
+	char *text = NULL;
+	int start, end;
+
+	memset(&SendPci, 0, sizeof(SendPci));
+	SendPci.Protocol = t1;
+
+	memset(&RecvPci, 0, sizeof(RecvPci));
+
+	if (cases & CASE2)
+	{
+		/* Case 2 */
+		text = "Case 2: CLA INS P1 P2 Le, L(Cmd) = 5";
+		start = end = 65535;
+		if (full)
+			start = 1;
+
+		for (len_i = start; len_i <= end; len_i++)
+		{
+#ifdef CONTACTLESS
+			s[0] = 0x00;
+			s[1] = 0xD6;
+			s[2] = 0x00;
+			s[3] = 0x00;
+#else
+			s[0] = 0x80;
+			s[1] = 0x12;
+			s[2] = 0x01;
+			s[3] = 0x80;
+#endif
+			s[4] = 0x00;	/* extended */
+			s[5] = len_i >> 8;
+			s[6] = len_i;
+
+			for (i=0; i<len_i; i++)
+				s[7+i] = i;
+
+			dwSendLength = len_i + 7;
+			dwRecvLength = sizeof(r);
+
+			e[0] = 0x90;
+			e[1] = 0x00;
+			e_length = 2;
+
+			if (exchange(text, lun, SendPci, &RecvPci,
+				s, dwSendLength, r, &dwRecvLength, e, e_length))
+				goto end;
+		}
+	}
+
+	if (cases & CASE3)
+	{
+		/* Case 3 */
+		/*
+		 * 252  (0xFC) is max size for one USB or GBP paquet
+		 * 256 (0x100) maximum, 1 minimum
+		 */
+		text = "Case 3: CLA INS P1 P2 Lc Data, L(Cmd) = 5 + Lc";
+		start = end = 65535;
+		if (full)
+			start = 1;
+
+		for (len_o = start; len_o <= end; len_o++)
+		{
+			char test_value = 0x42;
+
+#ifdef CONTACTLESS
+			s[0] = 0x00;
+			s[1] = 0xB0;
+			s[2] = 0x00;
+			s[3] = 0x00;
+#else
+			s[0] = 0x80;
+			s[1] = 0x00;
+			s[2] = 0x04;
+			s[3] = test_value;
+#endif
+			s[4] = 0x00;
+			s[5] = len_o >> 8;
+			s[6] = len_o;
+
+			dwSendLength = 7;
+			dwRecvLength = sizeof(r);
+
+			for (i=0; i<len_o; i++)
+				e[i] = test_value;
+			e[i++] = 0x90;
+			e[i++] = 0x00;
+			e_length = len_o+2;
+
+			if (exchange(text, lun, SendPci, &RecvPci,
+				s, dwSendLength, r, &dwRecvLength, e, e_length))
+				goto end;
+		}
+	}
+
+end:
+	return 0;
+} /* extended_apdu */
+
+int short_apdu(int lun)
+{
+	int i, len_i, len_o;
+	SCARD_IO_HEADER SendPci, RecvPci;
+	UCHAR s[MAX_BUFFER_SIZE], r[MAX_BUFFER_SIZE];
+	DWORD dwSendLength, dwRecvLength;
+	UCHAR e[MAX_BUFFER_SIZE];	// expected result
+	int e_length;	// expected result length
+	char *text = NULL;
+	int time;
+	int start, end;
 
 	memset(&SendPci, 0, sizeof(SendPci));
 	SendPci.Protocol = t1;
@@ -727,14 +864,8 @@ int handler_test(int lun, int channel, char device_name[])
 	}
 
 end:
-	/* Close */
-	rv = f.IFDHCloseChannel(LUN);
-	PCSC_ERROR("IFDHCloseChannel");
-	if (rv != IFD_SUCCESS)
-		return 1;
-
 	return 0;
-} /* handler_test */
+} /* short_apdu */
 
 char *ifd_error(int rv)
 {
@@ -798,6 +929,7 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 
 	rv = f.IFDHTransmitToICC(lun, SendPci, s, s_length, r, r_length, RecvPci);
 
+	log_msg(0, "Received %d (0x%04X) bytes", *r_length, *r_length);
 	log_xxd(0, "Received: ", r, *r_length);
 	if (rv)
 	{
@@ -814,6 +946,7 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 			return 1;
 	}
 
+#ifndef CONTACTLESS
 	/* check the received data */
 	for (i=0; i<e_length; i++)
 		if (r[i] != e[i])
@@ -824,6 +957,7 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 				return 1;
 			break;
 		}
+#endif
 
 	printf("--------> OK\n");
 
