@@ -61,7 +61,7 @@ int short_apdu(int lun);
 
 struct f_t {
 	RESPONSECODE (*IFDHCreateChannel)(DWORD, DWORD);
-	RESPONSECODE (*IFDHCreateChannelByName)(DWORD, LPTSTR);
+	RESPONSECODE (*IFDHCreateChannelByName)(DWORD, LPSTR);
 	RESPONSECODE (*IFDHCloseChannel)(DWORD);
 	//RESPONSECODE IFDHGetCapabilities ( DWORD, DWORD, PDWORD, PUCHAR );
 	//RESPONSECODE IFDHSetCapabilities ( DWORD, DWORD, DWORD, PUCHAR );
