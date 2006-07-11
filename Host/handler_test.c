@@ -944,7 +944,10 @@ int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	UCHAR r[], PDWORD r_length,
 	UCHAR e[], int e_length)
 {
-	int rv, i;
+	int rv;
+#ifndef CONTACTLESS
+	int i;
+#endif
 
 	printf("\n%s\n", text);
 	log_xxd(0, "Sent: ", s, s_length);
