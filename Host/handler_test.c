@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
 
 int handler_test(int lun, int channel, char device_name[])
 {
-	int rv, test_rv;
+	int rv, test_rv = 0;
 	UCHAR atr[MAX_ATR_SIZE];
 	DWORD atrlength;
 
