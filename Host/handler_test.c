@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
 
 int handler_test(int lun, int channel, char device_name[])
 {
-	int rv;
+	int rv, test_rv;
 	UCHAR atr[MAX_ATR_SIZE];
 	DWORD atrlength;
 
@@ -345,9 +345,9 @@ int handler_test(int lun, int channel, char device_name[])
 		goto end;
 
 	if (extended)
-		extended_apdu(lun);
+		test_rv = extended_apdu(lun);
 	else
-		short_apdu(lun);
+		test_rv = short_apdu(lun);
 
 end:
 	/* Close */
@@ -355,6 +355,30 @@ end:
 	PCSC_ERROR("IFDHCloseChannel");
 	if (rv != IFD_SUCCESS)
 		return 1;
+
+	printf("\nTest summary:\n");
+	printf("Cases: ");
+	if (cases & 1)
+		printf("1 ");
+	if (cases & 2)
+		printf("2 ");
+	if (cases & 4)
+		printf("3 ");
+	if (cases & 8)
+		printf("4 ");
+	printf("\n");
+	printf("Extended APDU: %s\n", extended ? "yes" : "no");
+	printf("All APDU sizes: %s\n", full ? "yes" : "no");
+	printf("time request: %d\n", timerequest);
+	printf("Use APDU: %s\n", apdu ? "yes" : "no");
+	printf("Use TPDU: %s\n", tpdu ? "yes" : "no");
+	printf("Use T=1: %s\n", t1 ? "yes" : "no");
+	printf("\n");
+
+	if (test_rv)
+		printf("\33[01;31m***********\n*  ERROR  *\n***********\33[0m\n");
+	else
+		printf("\33[01;34m***********\n*   OK    *\n***********\33[0m\n");
 
 	return 0;
 } /* handler_test */
@@ -412,7 +436,7 @@ int extended_apdu(int lun)
 
 			if (exchange(text, lun, SendPci, &RecvPci,
 				s, dwSendLength, r, &dwRecvLength, e, e_length))
-				goto end;
+				return 1;
 		}
 	}
 
@@ -458,11 +482,10 @@ int extended_apdu(int lun)
 
 			if (exchange(text, lun, SendPci, &RecvPci,
 				s, dwSendLength, r, &dwRecvLength, e, e_length))
-				goto end;
+				return 1;
 		}
 	}
 
-end:
 	return 0;
 } /* extended_apdu */
 
@@ -506,7 +529,7 @@ int short_apdu(int lun)
 
 	if (exchange(text, lun, SendPci, &RecvPci,
 		s, dwSendLength, r, &dwRecvLength, e, e_length))
-		goto end;
+		return 1;
 
 	/* Time Request */
 	if (timerequest >= 0)
@@ -528,7 +551,7 @@ int short_apdu(int lun)
 
 		if (exchange(text, lun, SendPci, &RecvPci,
 			s, dwSendLength, r, &dwRecvLength, e, e_length))
-			goto end;
+			return 1;
 	}
 
 	if (cases & CASE1)
@@ -549,7 +572,7 @@ int short_apdu(int lun)
 
 		if (exchange(text, lun, SendPci, &RecvPci,
 			s, dwSendLength, r, &dwRecvLength, e, e_length))
-			goto end;
+			return 1;
 
 		/* Case 1, TPDU */
 		text = "Case 1, TPDU: CLA INS P1 P2 P3 (=0), L(Cmd) = 5";
@@ -568,7 +591,7 @@ int short_apdu(int lun)
 
 		if (exchange(text, lun, SendPci, &RecvPci,
 			s, dwSendLength, r, &dwRecvLength, e, e_length))
-			goto end;
+			return 1;
 	}
 
 	if (cases & CASE2)
@@ -603,7 +626,7 @@ int short_apdu(int lun)
 
 			if (exchange(text, lun, SendPci, &RecvPci,
 				s, dwSendLength, r, &dwRecvLength, e, e_length))
-				goto end;
+				return 1;
 		}
 	}
 
@@ -646,7 +669,7 @@ int short_apdu(int lun)
 
 			if (exchange(text, lun, SendPci, &RecvPci,
 				s, dwSendLength, r, &dwRecvLength, e, e_length))
-				goto end;
+				return 1;
 		}
 
 #if 0
@@ -688,7 +711,7 @@ int short_apdu(int lun)
 
 		if (exchange(text, lun, SendPci, &RecvPci,
 			s, dwSendLength, r, &dwRecvLength, e, e_length))
-			goto end;
+			return 1;
 #endif
 
 #if 0
@@ -730,7 +753,7 @@ int short_apdu(int lun)
 
 		if (exchange(text, lun, SendPci, &RecvPci,
 			s, dwSendLength, r, &dwRecvLength, e, e_length))
-			goto end;
+			return 1;
 #endif
 	}
 
@@ -783,7 +806,7 @@ int short_apdu(int lun)
 
 				if (exchange(text, lun, SendPci, &RecvPci,
 					s, dwSendLength, r, &dwRecvLength, e, e_length))
-					goto end;
+					return 1;
 
 				/* Get response */
 				text = "Case 4, TPDU, Get response: ";
@@ -804,7 +827,7 @@ int short_apdu(int lun)
 
 				if (exchange(text, lun, SendPci, &RecvPci,
 					s, dwSendLength, r, &dwRecvLength, e, e_length))
-					goto end;
+					return 1;
 			}
 		}
 
@@ -858,12 +881,11 @@ int short_apdu(int lun)
 
 				if (exchange(text, lun, SendPci, &RecvPci,
 					s, dwSendLength, r, &dwRecvLength, e, e_length))
-					goto end;
+					return 1;
 			}
 		}
 	}
 
-end:
 	return 0;
 } /* short_apdu */
 
