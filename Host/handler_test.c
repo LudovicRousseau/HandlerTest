@@ -931,6 +931,10 @@ char *ifd_error(int rv)
 			strcpy(strError, "IFD: power up failed");
 			break;
 
+		case IFD_NO_SUCH_DEVICE:
+			strcpy(strError, "IFD: no such device");
+			break;
+
 		default:
 			snprintf(strError, sizeof(strError)-1, "IFD: undocumented error: %d", rv);
 	}
