@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <PCSC/winscard.h>
+#include <PCSC/wintypes.h>
 #include <PCSC/ifdhandler.h>
 
 #include "debug.h"
@@ -299,6 +300,7 @@ int handler_test(int lun, int channel, char device_name[])
 
 #define IOCTL_SMARTCARD_VENDOR_IFD_EXCHANGE     SCARD_CTL_CODE(1)
 
+#ifndef __APPLE__
 	if (f.version >= IFD_HVERSION_3_0)
 	{
 		unsigned char cmd[] = "\x02";
@@ -317,6 +319,7 @@ int handler_test(int lun, int channel, char device_name[])
 			PCSC_ERROR("IFDHControl");
 			//printf("IFDHControl: %s\n", ifd_error(rv));
 	}
+#endif
 
 	rv = f.IFDHICCPresence(LUN);
 	PCSC_ERROR("IFDHICCPresence");
@@ -329,6 +332,15 @@ int handler_test(int lun, int channel, char device_name[])
 		PCSC_ERROR("IFDHPowerICC");
 		goto end;
 	}
+
+#ifdef __APPLE__
+	rv = f.IFDHPowerICC(LUN, IFD_POWER_UP, atr, &atrlength);
+	if (rv != IFD_SUCCESS)
+	{
+		PCSC_ERROR("IFDHPowerICC");
+		goto end;
+	}
+#endif
 
 	log_xxd(0, "ATR: ", atr, atrlength);
 
