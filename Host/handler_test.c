@@ -188,6 +188,12 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	if ((FALSE == tpdu) && (FALSE == apdu))
+	{
+		printf("\33[01;31mDefine TPDU (-T) or APDU (-A)\33[0m\n");
+		return 2;
+	}
+
 	driver = getenv(ENV_LIBNAME);
 
 	if (driver == NULL)
