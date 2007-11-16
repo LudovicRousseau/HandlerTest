@@ -33,7 +33,7 @@
 
 #include "debug.h"
 
-#define CONTACTLESS
+#undef CONTACTLESS
 
 #define LUN 0
 #define ENV_LIBNAME "LIB"
