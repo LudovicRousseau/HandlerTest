@@ -574,42 +574,48 @@ int short_apdu(int lun)
 
 	if (cases & CASE1)
 	{
-		/* Case 1, APDU */
-		text = "Case 1, APDU: CLA INS P1 P2, L(Cmd) = 4";
-		s[0] = 0x80;
-		s[1] = 0x30;
-		s[2] = 0x00;
-		s[3] = 0x00;
+		if (apdu)
+		{
+			/* Case 1, APDU */
+			text = "Case 1, APDU: CLA INS P1 P2, L(Cmd) = 4";
+			s[0] = 0x80;
+			s[1] = 0x30;
+			s[2] = 0x00;
+			s[3] = 0x00;
 
-		dwSendLength = 4;
-		dwRecvLength = sizeof(r);
+			dwSendLength = 4;
+			dwRecvLength = sizeof(r);
 
-		e[0] = 0x90;
-		e[1] = 0x00;
-		e_length = 2;
+			e[0] = 0x90;
+			e[1] = 0x00;
+			e_length = 2;
 
-		if (exchange(text, lun, SendPci, &RecvPci,
-			s, dwSendLength, r, &dwRecvLength, e, e_length))
-			return 1;
+			if (exchange(text, lun, SendPci, &RecvPci,
+						s, dwSendLength, r, &dwRecvLength, e, e_length))
+				return 1;
+		}
 
-		/* Case 1, TPDU */
-		text = "Case 1, TPDU: CLA INS P1 P2 P3 (=0), L(Cmd) = 5";
-		s[0] = 0x80;
-		s[1] = 0x30;
-		s[2] = 0x00;
-		s[3] = 0x00;
-		s[4] = 0x00;
+		if (tpdu)
+		{
+			/* Case 1, TPDU */
+			text = "Case 1, TPDU: CLA INS P1 P2 P3 (=0), L(Cmd) = 5";
+			s[0] = 0x80;
+			s[1] = 0x30;
+			s[2] = 0x00;
+			s[3] = 0x00;
+			s[4] = 0x00;
 
-		dwSendLength = 5;
-		dwRecvLength = sizeof(r);
+			dwSendLength = 5;
+			dwRecvLength = sizeof(r);
 
-		e[0] = 0x90;
-		e[1] = 0x00;
-		e_length = 2;
+			e[0] = 0x90;
+			e[1] = 0x00;
+			e_length = 2;
 
-		if (exchange(text, lun, SendPci, &RecvPci,
-			s, dwSendLength, r, &dwRecvLength, e, e_length))
-			return 1;
+			if (exchange(text, lun, SendPci, &RecvPci,
+						s, dwSendLength, r, &dwRecvLength, e, e_length))
+				return 1;
+		}
 	}
 
 	if (cases & CASE2)
