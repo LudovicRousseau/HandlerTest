@@ -559,8 +559,12 @@ int short_apdu(int lun)
 		s[1] = 0x38;
 		s[2] = 0x00;
 		s[3] = time;
+		s[4] = 0;
 
-		dwSendLength = 4;
+		if (apdu)
+			dwSendLength = 4;
+		else
+			dwSendLength = 5;
 		dwRecvLength = sizeof(r);
 
 		e[0] = 0x90;
