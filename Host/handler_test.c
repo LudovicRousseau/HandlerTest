@@ -101,7 +101,7 @@ extern int optind, opterr, optopt;
 
 void help(char *argv0)
 {
-	printf("\nUsage: %s [-f] [-t val] [-1] [-2] [-3] [-4] [-A] [-T] [libname] [channel [device_name]|device_name]\n", argv0);
+	printf("\nUsage: %s [-f] [-t val] [-1] [-2] [-3] [-4] [-A] [-T] [-l libname] [-c channel] [-d device_name]\n", argv0);
 	printf("  -f : test APDU with every possible lengths\n");
 	printf("  -t val : use val as timerequest value. Set to 0 to avoid test\n");
 	printf("  -1 : test CASE 1 APDU\n");
@@ -113,11 +113,11 @@ void help(char *argv0)
 	printf("  -T : use TPDU\n");
 	printf("  -Z : use T=1 instead of default T=0\n");
 	printf("  -n : non stop, do not stop on the first error\n");
-	printf("  libname : driver to load\n");
-	printf("  channel : channel to use (for a serial driver)\n");
-	printf("  device_name : name to use in IFDHCreateChannelByName\n");
+	printf("  -l libname : driver to load\n");
+	printf("  -c channel : channel to use (for a serial driver)\n");
+	printf("  -d device_name : name to use in IFDHCreateChannelByName\n");
 	printf("   like usb:08e6/3437:libusb:001/038 or /dev/pcsc/1\n\n");
-	printf("example: %s /usr/lib/pcsc/drivers/serial/libGemPC410.so 2\n",
+	printf("example: %s -d /usr/lib/pcsc/drivers/serial/libGemPC410.so -c 2\n",
 		argv0);
 	printf(" to load the libGemPC410 and use /dev/pcsc/2\n");
 	printf("or define environment variable LIB\n");
@@ -135,7 +135,9 @@ int main(int argc, char *argv[])
 	int opt;
 	char *device_name = NULL;
 
-	while ((opt = getopt(argc, argv, "ft:1234ATZne")) != EOF)
+	driver = getenv(ENV_LIBNAME);
+
+	while ((opt = getopt(argc, argv, "ft:1234ATZnel:c:d:")) != EOF)
 	{
 		switch (opt)
 		{
@@ -182,44 +184,23 @@ int main(int argc, char *argv[])
 				printf("Use non stop mode\n");
 				break;
 
-			default:
-				printf ("caractère: %c (0x%02X)\n", opt, opt);
-				help(argv[0]);
-		}
-	}
-
-	driver = getenv(ENV_LIBNAME);
-
-	if (driver == NULL)
-	{
-		if (argc - optind < 1)
-			help(argv[0]);
-
-		// driver
-		driver = argv[optind];
-
-		// channel or device_name
-		if (argc - optind >= 2)
-			if (sscanf(argv[optind+1], "%d", &channel) != 1)
-				device_name = argv[optind+1];
-	}
-	else
-	{
-		switch (argc - optind)
-		{
-			// channel or device_name
-			case 1:
-				if (sscanf(argv[optind], "%d", &channel) != 1)
-					device_name = argv[optind];
+			case 'l':
+				driver = optarg;
+				printf("Using driver: %s\n", driver);
 				break;
 
-			// channel and device_name
-			case 2:
-				channel = atoi(argv[optind]);
-				device_name = argv[optind+1];
+			case 'c':
+				channel = atol(optarg);
+				printf("Usinf channel: %d\n", channel);
+				break;
+
+			case 'd':
+				device_name = optarg;
+				printf("Using device: %s\n", device_name);
 				break;
 
 			default:
+				printf ("caractÃ¨re: %c (0x%02X)\n", opt, opt);
 				help(argv[0]);
 		}
 	}
@@ -227,6 +208,7 @@ int main(int argc, char *argv[])
 	if ((FALSE == tpdu) && (FALSE == apdu))
 	{
 		printf("\33[01;31mDefine TPDU (-T) or APDU (-A)\33[0m\n");
+		help(argv[0]);
 		return 2;
 	}
 
