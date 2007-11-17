@@ -55,7 +55,7 @@ int short_apdu(int lun);
 
 #define DLSYM(func)  f.func = dlsym(lib_handle, "" # func); \
 	if (f.func == NULL) { \
-	DEBUG("dlsym: " # func); \
+	DEBUG2("dlsym: %s", dlerror()); \
 	return 1; }
 
 #define PCSC_ERROR(x) printf("%s:%d " x ": %s\n", __FILE__, __LINE__, ifd_error(rv))
