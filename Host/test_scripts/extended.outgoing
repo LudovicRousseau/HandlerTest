@@ -1,0 +1,27 @@
+#
+# Script to test a driver
+# (c) 2008, Ludovic Rousseau
+
+# Use scriptor for pcsc-tools to execute this script
+# http://ludovic.rousseau.free.fr/softwares/pcsc-tools/
+
+# usage: scriptor extended.outgoing
+
+# reset the card (expected 3B 96 18 80 01 80 51 00 61 10 30 9F)
+reset
+
+# outgoging data (16 bytes)
+80 00 04 42 10
+
+# outgoging data (272 bytes)
+80 00 04 42 00 01 10
+
+# outgoging data (528 bytes)
+80 00 04 42 00 02 10
+
+# outgoging data (784 bytes)
+80 00 04 42 00 03 10
+
+# outgoging data (1040 bytes)
+80 00 04 42 00 04 10
+
