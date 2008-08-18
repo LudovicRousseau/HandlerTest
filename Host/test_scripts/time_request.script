@@ -1,0 +1,23 @@
+#! /usr/bin/env scriptor
+#
+# Script to test a driver
+# (c) 2001, Ludovic Rousseau
+
+# Use scriptor for pcsc-tools to execute this script
+# http://ludovic.rousseau.free.fr/softwares/pcsc-tools/
+
+# reset the card
+reset
+
+# Select applet
+00 A4 04 00 06 A0 00 00 00 18 FF
+
+# Case 3
+80 34 00 02 02
+
+# Time request
+80 38 00 40
+
+# Case 3
+80 34 00 02 02
+
