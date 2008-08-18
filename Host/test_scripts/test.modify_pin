@@ -1,0 +1,21 @@
+#
+# Send a modify PIN command to the test applet
+# (c) 2008, Ludovic Rousseau
+
+# Use scriptor for pcsc-tools to execute this script
+# http://ludovic.rousseau.free.fr/softwares/pcsc-tools/
+
+# usage: scriptor test.script
+
+# reset the card
+reset
+
+# Select applet
+00 A4 04 00 07 A0 00 00 00 18 FF 01
+
+# modify PIN
+00 24 00 00 08 31 32 33 34 35 36 37 38
+
+# verify PIN dump
+00 40 00 00 0D
+
