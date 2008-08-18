@@ -1,11 +1,11 @@
+# ! /usr/bin/env scriptor
+#
 # Call GET CHALLENGE to generate random numbers
 # tested on a Gemplus GPK card
 # (c) 2008, Ludovic Rousseau
 
 # Use scriptor for pcsc-tools to execute this script
 # http://ludovic.rousseau.free.fr/softwares/pcsc-tools/
-
-# usage: scriptor test.script
 
 80 84 00 00 20
 80 84 00 00 20

@@ -1,11 +1,10 @@
+#! /usr/bin/env scriptor
 #
 # Script to test a driver
 # (c) 2001, Ludovic Rousseau
 
 # Use scriptor for pcsc-tools to execute this script
 # http://ludovic.rousseau.free.fr/softwares/pcsc-tools/
-
-# usage: scriptor test.script
 
 # reset the card
 reset
