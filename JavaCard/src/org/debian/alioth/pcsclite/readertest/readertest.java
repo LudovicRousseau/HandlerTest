@@ -83,7 +83,7 @@ public class readertest extends javacard.framework.Applet
 
     /**
      * Method installing the applet.
-     * @param bArray the array constaining installation parameters
+     * @param bArray the array containing installation parameters
      * @param bOffset the starting offset in bArray
      * @param bLength the length in bytes of the data parameter in bArray
      */
@@ -126,7 +126,7 @@ public class readertest extends javacard.framework.Applet
         short index;
         short readCount;
 
-        // ignore the applet select command dispached to the process
+        // ignore the applet select command dispatched to the process
         if (selectingApplet())
             return;
 
