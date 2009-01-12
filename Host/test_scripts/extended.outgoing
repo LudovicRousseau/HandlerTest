@@ -24,3 +24,12 @@ reset
 # outgoging data (1040 bytes)
 80 00 04 42 00 04 10
 
+# outgoging data (2032 bytes)
+80 00 04 42 00 07 F0
+
+# outgoging data (2048 bytes)
+80 00 04 42 00 08 00
+
+# outgoging data (2304 bytes)
+80 00 04 42 00 09 00
+
