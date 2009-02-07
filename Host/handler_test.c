@@ -34,6 +34,7 @@
 #include "debug.h"
 
 #undef CONTACTLESS
+#undef COMBI
 
 #define LUN 0
 #define ENV_LIBNAME "LIB"
@@ -518,7 +519,11 @@ int short_apdu(int lun)
 	s[7] = 0x00;
 	s[8] = 0x00;
 	s[9] = 0x18;
+#ifdef COMBI
+	s[10] = 0x50;
+#else
 	s[10] = 0xFF;
+#endif
 
 	dwSendLength = 11;
 	dwRecvLength = sizeof(r);
