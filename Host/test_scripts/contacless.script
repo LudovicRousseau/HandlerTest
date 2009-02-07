@@ -25,7 +25,11 @@ reset
 # Case 3
 80 34 00 01 01
 80 34 00 02 02
-#80 34 00 F0 F0
+80 34 00 7A 7A
+# 7B will return 63 00 : State of non-volatile memory changed.
+80 34 00 7B 7B
+80 34 00 7C 7C
+80 34 00 F0 F0
 
 # Case 4
 80 36 00 01 01 00
@@ -36,4 +40,6 @@ A0 C0 00 00 0F
 
 # Time request
 80 38 00 10
+# no time request received from the reader so the read will timeout
+80 38 00 FF
 
