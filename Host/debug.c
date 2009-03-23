@@ -18,6 +18,8 @@ void log_msg(const int priority, char *fmt, ...)
 {
 	va_list argptr;
 
+	(void)priority;
+
 	va_start(argptr, fmt);
 	vprintf(fmt, argptr);
 	va_end(argptr);
