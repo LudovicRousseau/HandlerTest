@@ -29,6 +29,7 @@ void tperrorCheck (char *pcToken_error);
 %}
 
 %option nounput
+%option noyywrap
 
 %%
 
@@ -43,11 +44,6 @@ void tperrorCheck (char *pcToken_error);
 #include <stdio.h>
 #include <string.h>
 #include "debug.h"
-
-int yywrap()
-{
-	return 1;
-}
 
 
 void tpevalToken(char *pcToken, int tokType)
