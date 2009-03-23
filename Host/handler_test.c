@@ -78,7 +78,7 @@ struct f_t {
 	int version;
 };
 
-struct f_t f = { NULL, NULL, NULL, NULL, NULL };
+struct f_t f = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0 };
 
 #define CASE1 (1)
 #define CASE2 (1<<1)
