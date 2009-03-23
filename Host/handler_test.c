@@ -96,7 +96,7 @@ char stop_on_error = TRUE;
 char extended = FALSE;
 
 
-void help(char *argv0)
+static void help(char *argv0)
 {
 	printf("\nUsage: %s [-f] [-t val] [-1] [-2] [-3] [-4] [-A] [-T] [-l libname] [-c channel] [-d device_name]\n", argv0);
 	printf("  -f : test APDU with every possible lengths\n");
