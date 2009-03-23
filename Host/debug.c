@@ -31,6 +31,8 @@ void log_xxd(const int priority, const char *msg, const unsigned char *buffer,
 {
 	int i;
 
+	(void)priority;
+
 	printf(msg);
 
 	for (i = 0; i < len; ++i)
