@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void log_msg(const int priority, char *fmt, ...)
+void log_msg(const int priority, const char *fmt, ...)
 {
 	va_list argptr;
 

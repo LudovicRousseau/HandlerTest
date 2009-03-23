@@ -35,7 +35,7 @@
 #define DEBUG2(fmt, data) log_msg(0, "%s:%d:%s " fmt, __FILE__, __LINE__, __FUNCTION__, data)
 #define DEBUG3(fmt, data1, data2) log_msg(0, "%s:%d:%s " fmt, __FILE__, __LINE__, __FUNCTION__, data1, data2)
 
-void log_msg(const int priority, char *fmt, ...);
+void log_msg(const int priority, const char *fmt, ...);
 void log_xxd(const int priority, const char *msg, const unsigned char *buffer,
 	const int size);
 
