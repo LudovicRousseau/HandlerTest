@@ -95,10 +95,6 @@ char t1 = FALSE;
 char stop_on_error = TRUE;
 char extended = FALSE;
 
-/* getopt(3) */
-extern char *optarg;
-extern int optind, opterr, optopt;
-
 
 void help(char *argv0)
 {
