@@ -46,7 +46,7 @@
 
 int handler_test(int lun, int channel, char device_name[]);
 char *ifd_error(int rv);
-int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
+int exchange(const char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	PSCARD_IO_HEADER RecvPci,
 	UCHAR s[], DWORD s_length,
 	UCHAR r[], PDWORD r_length,
@@ -388,7 +388,7 @@ int extended_apdu(int lun)
 	DWORD dwSendLength, dwRecvLength;
 	UCHAR e[MAX_BUFFER_SIZE_EXTENDED];	// expected result
 	int e_length;	// expected result length
-	char *text = NULL;
+	const char *text = NULL;
 	int start, end;
 
 	memset(&SendPci, 0, sizeof(SendPci));
@@ -494,7 +494,7 @@ int short_apdu(int lun)
 	DWORD dwSendLength, dwRecvLength;
 	UCHAR e[MAX_BUFFER_SIZE];	// expected result
 	int e_length;	// expected result length
-	char *text = NULL;
+	const char *text = NULL;
 	int time;
 	int start, end;
 
@@ -953,7 +953,7 @@ char *ifd_error(int rv)
 	return strError;
 } /* ifd_error */
 
-int exchange(char *text, DWORD lun, SCARD_IO_HEADER SendPci,
+int exchange(const char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	PSCARD_IO_HEADER RecvPci,
 	UCHAR s[], DWORD s_length,
 	UCHAR r[], PDWORD r_length,
