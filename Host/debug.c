@@ -33,7 +33,7 @@ void log_xxd(const int priority, const char *msg, const unsigned char *buffer,
 
 	(void)priority;
 
-	printf(msg);
+	printf("%s", msg);
 
 	for (i = 0; i < len; ++i)
 		printf("%02X ", buffer[i]);
