@@ -202,6 +202,13 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	if (NULL == driver)
+	{
+		printf("\33[01;31mUse -l libname or define " ENV_LIBNAME "\33[0m\n");
+		help(argv[0]);
+		return 2;
+	}
+
 	if ((FALSE == tpdu) && (FALSE == apdu))
 	{
 		printf("\33[01;31mDefine TPDU (-T) or APDU (-A)\33[0m\n");
