@@ -1,15 +1,20 @@
-/*****************************************************************
+/*
+ * Reads lexical config files and updates database.
+ *
+ * MUSCLE SmartCard Development ( http://www.linuxnet.com )
+ *
+ * Copyright (C) 2001-2003
+ *  David Corcoran <corcoran@linuxnet.com>
+ *  Ludovic Rousseau <ludovic.rousseau@free.fr>
+ *
+ * $Id$
+ */
 
-  File   :   tokenparser.l
-  Author :   David Corcoran
-  Date   :   February 12, 1999, modified August 2003
-  Purpose:   Reads lexical config files and updates database.
-             See http://www.linuxnet.com for more information.
-  License:   Copyright (C) 1999-2003 David Corcoran <corcoran@linuxnet.com>
-             Ludovic Rousseau <ludovic.rousseau@free.fr>
-$Id$
-
-******************************************************************/
+/**
+ * @file
+ * @brief provides LTPBundleFindValueWithKey() function on non-MacOS X
+ * platforms
+ */
 
 %{
 
@@ -17,7 +22,7 @@ $Id$
 
 void tpevalToken(char *pcToken, int tokType);
 
-static char *pcDesiredKey = 0;
+static const char *pcDesiredKey = NULL;
 static char pcKey[TOKEN_MAX_KEY_SIZE];
 static char pcValue[TOKEN_MAX_VALUE_SIZE];
 static char pcFinValue[TOKEN_MAX_VALUE_SIZE];
@@ -36,9 +41,9 @@ void tperrorCheck (char *pcToken_error);
 #.*                                             {}
 "\n"                                            {}
 \<key\>([A-Z]|[a-z]|[0-9]|[ \t])+\<\/key\>      { valueIndex = 0; tpevalToken(yytext, TOKEN_TYPE_KEY); }
-[ \t]                     		        {}
+[ \t]                                           {}
 \<string\>([A-Z]|[a-z]|[0-9]|[ \t]|[!@#$%^&*()\-+/_\:?.,=~'"])+\<\/string\> {tpevalToken(yytext, TOKEN_TYPE_STRING); valueIndex += 1;}
-.                                               { tperrorCheck( yytext ); }
+.                                               { tperrorCheck(yytext); }
 %%
 
 #include <stdio.h>
@@ -48,17 +53,23 @@ void tperrorCheck (char *pcToken_error);
 
 void tpevalToken(char *pcToken, int tokType)
 {
-	int len;
+	unsigned int len;
 	len = 0;
 
 	if (tokType == TOKEN_TYPE_KEY)
 	{
-		for (len=5; pcToken[len] != '<'; len++)
+		/* <key>foobar</key>
+		 * 012345 : 5 is the first key character index */
+
+		/* calculate the argument length */
+		for (len=0; pcToken[len+5] != '<'; len++)
 			;
-		if (len - 5 > TOKEN_MAX_KEY_SIZE)
+		len++;	/* final NULL byte */
+
+		if (len > sizeof(pcKey))
 		{
-			strncpy(pcKey, &pcToken[5], TOKEN_MAX_KEY_SIZE);
-			pcKey[TOKEN_MAX_KEY_SIZE - 1] = '\0';
+			strncpy(pcKey, &pcToken[5], sizeof(pcKey));
+			pcKey[sizeof(pcKey) - 1] = '\0';
 		}
 		else
 		{
@@ -69,32 +80,50 @@ void tpevalToken(char *pcToken, int tokType)
 
 	if (tokType == TOKEN_TYPE_STRING)
 	{
-		for (len=8; pcToken[len] != '<'; len++)
+		/* <string>foobar</string>
+		 * 012345678 : 8 is the first string character index */
+
+		/* calculate the argument length */
+		for (len=0; pcToken[len+8] != '<'; len++)
 			;
-		if (len - 8 > TOKEN_MAX_VALUE_SIZE)
+		len++;	/* final NULL byte */
+
+		if (len > sizeof(pcValue))
 		{
-			strncpy(pcValue, &pcToken[8], TOKEN_MAX_VALUE_SIZE);
-			pcValue[TOKEN_MAX_VALUE_SIZE - 1] = '\0';
+			strncpy(pcValue, &pcToken[8], sizeof(pcValue));
+			pcValue[sizeof(pcValue) - 1] = '\0';
 		}
 		else
 		{
-			strncpy(pcValue, &pcToken[8], len - 8);
-			pcValue[len-8] = 0;
+			strncpy(pcValue, &pcToken[8], len);
+			pcValue[len - 1] = 0;
 		}
 		if (strcmp(pcKey, pcDesiredKey) == 0)
 			if (desiredIndex == valueIndex)
 			{
-				strncpy(pcFinValue, pcValue, TOKEN_MAX_VALUE_SIZE);
-				pcFinValue[TOKEN_MAX_VALUE_SIZE - 1] = '\0';
+				strncpy(pcFinValue, pcValue, sizeof(pcValue));
+				pcFinValue[sizeof(pcValue) - 1] = '\0';
 			}
 	}
 }
 
 void tperrorCheck (char *token_error)
 {
+	(void)token_error;
 }
 
-int LTPBundleFindValueWithKey(char *fileName, char *tokenKey,
+/**
+ * Find a key in a configuration file
+ *
+ * @param fileName file name
+ * @param tokenKey key value
+ * @param[out] tokenValue token value (if key found)
+ * @param tokenIndice indice of the desired key
+ * @retval -1 configuration file not found
+ * @retval 0 OK
+ * @retval 1 key not found
+ */
+int LTPBundleFindValueWithKey(const char *fileName, const char *tokenKey,
                               char *tokenValue, int tokenIndice)
 {
 	FILE *file = NULL;
@@ -108,7 +137,8 @@ int LTPBundleFindValueWithKey(char *fileName, char *tokenKey,
 
 	if (!file)
 	{
-		DEBUG2("Could not open bundle file : %s", fileName);
+		DEBUG3("Could not open bundle file %s: %s",
+			fileName, strerror(errno));
 		return 1;
 	}
 
@@ -116,7 +146,7 @@ int LTPBundleFindValueWithKey(char *fileName, char *tokenKey,
 
 	do
 	{
-		yylex();
+		(void)yylex();
 	} while (!feof(file));
 
 	if (pcFinValue[0] == 0)
@@ -135,7 +165,7 @@ int LTPBundleFindValueWithKey(char *fileName, char *tokenKey,
 		tokenValue[TOKEN_MAX_VALUE_SIZE - 1] = '\0';
 	}
 
-	fclose(file);
+	(void)fclose(file);
 	return ret;
 }
 
