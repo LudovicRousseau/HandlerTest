@@ -969,6 +969,8 @@ int exchange(const char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	int rv;
 #ifndef CONTACTLESS
 	int i;
+#else
+	(void)e;
 #endif
 
 	printf("\n%s\n", text);
