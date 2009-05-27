@@ -403,10 +403,10 @@ int extended_apdu(int lun)
 
 	memset(&RecvPci, 0, sizeof(RecvPci));
 
-	if (cases & CASE2)
+	if (cases & CASE3)
 	{
-		/* Case 2 */
-		text = "Case 2: CLA INS P1 P2 Le, L(Cmd) = 5";
+		/* Case 3 */
+		text = "Case 3: CLA INS P1 P2 Lc Data, L(Cmd) = 5 + Lc";
 		start = end = 65535;
 		if (full)
 			start = 1;
@@ -444,14 +444,14 @@ int extended_apdu(int lun)
 		}
 	}
 
-	if (cases & CASE3)
+	if (cases & CASE2)
 	{
-		/* Case 3 */
+		/* Case 2 */
 		/*
 		 * 252  (0xFC) is max size for one USB or GBP paquet
 		 * 256 (0x100) maximum, 1 minimum
 		 */
-		text = "Case 3: CLA INS P1 P2 Lc Data, L(Cmd) = 5 + Lc";
+		text = "Case 2: CLA INS P1 P2 Le, L(Cmd) = 5";
 		start = end = 65535;
 		if (full)
 			start = 1;
@@ -612,14 +612,14 @@ int short_apdu(int lun)
 		}
 	}
 
-	if (cases & CASE2)
+	if (cases & CASE3)
 	{
-		/* Case 2 */
+		/* Case 3 */
 		/*
 		 * 248 (0xF8) is max size for one USB or GBP paquet
 		 * 255 (0xFF) maximum, 1 minimum
 		 */
-		text = "Case 2: CLA INS P1 P2 Le, L(Cmd) = 5";
+		text = "Case 3: CLA INS P1 P2 Lc Data, L(Cmd) = 5 + Lc";
 		start = end = 255;
 		if (full)
 			start = 1;
@@ -648,14 +648,14 @@ int short_apdu(int lun)
 		}
 	}
 
-	if (cases & CASE3)
+	if (cases & CASE2)
 	{
-		/* Case 3 */
+		/* Case 2 */
 		/*
 		 * 252  (0xFC) is max size for one USB or GBP paquet
 		 * 256 (0x100) maximum, 1 minimum
 		 */
-		text = "Case 3: CLA INS P1 P2 Lc Data, L(Cmd) = 5 + Lc";
+		text = "Case 2: CLA INS P1 P2 Le, L(Cmd) = 5";
 		start = end = 256;
 		if (full)
 			start = 1;
@@ -691,8 +691,8 @@ int short_apdu(int lun)
 		}
 
 #if 0
-		/* Case 3, length too short */
-		text = "Case 3, length too short: CLA INS P1 P2 Lc Data, L(Cmd) = 5 + Lc";
+		/* Case 2, length too short */
+		text = "Case 2, length too short: CLA INS P1 P2 Le, L(Cmd) = 5";
 		len_o = 20;
 
 		s[0] = 0x80;
@@ -733,8 +733,8 @@ int short_apdu(int lun)
 #endif
 
 #if 0
-		/* Case 3, length too long */
-		text = "Case 3, length too long: CLA INS P1 P2 Lc Data, L(Cmd) = 5 + Lc";
+		/* Case 2, length too long */
+		text = "Case 2, length too long: CLA INS P1 P2 Le, L(Cmd) = 5";
 		len_o = 20;
 
 		s[0] = 0x80;
