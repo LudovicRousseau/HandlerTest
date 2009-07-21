@@ -85,6 +85,10 @@ struct f_t f = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0 };
 #define CASE3 (1<<2)
 #define CASE4 (1<<3)
 
+#define RED "\33[01;31m"
+#define BLUE "\33[01;34m"
+#define NORMAL "\33[0m\n"
+
 /* flags */
 char full = FALSE;
 int timerequest = -1;
@@ -204,14 +208,14 @@ int main(int argc, char *argv[])
 
 	if (NULL == driver)
 	{
-		printf("\33[01;31mUse -l libname or define " ENV_LIBNAME "\33[0m\n");
+		printf(RED "Use -l libname or define " ENV_LIBNAME NORMAL);
 		help(argv[0]);
 		return 2;
 	}
 
 	if ((FALSE == tpdu) && (FALSE == apdu))
 	{
-		printf("\33[01;31mDefine TPDU (-T) or APDU (-A)\33[0m\n");
+		printf(RED "Define TPDU (-T) or APDU (-A)" NORMAL);
 		help(argv[0]);
 		return 2;
 	}
@@ -380,9 +384,9 @@ end:
 	printf("\n");
 
 	if (test_rv)
-		printf("\33[01;31m***********\n*  ERROR  *\n***********\33[0m\n");
+		printf(RED "***********\n*  ERROR  *\n***********" NORMAL);
 	else
-		printf("\33[01;34m***********\n*   OK    *\n***********\33[0m\n");
+		printf(BLUE "***********\n*   OK    *\n***********" NORMAL);
 
 	return 0;
 } /* handler_test */
@@ -989,7 +993,7 @@ int exchange(const char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	/* check the received length */
 	if (*r_length != e_length)
 	{
-		printf("\33[01;31mERROR: Expected %d bytes and received %ld\33[0m\n",
+		printf(RED "ERROR: Expected %d bytes and received %ld" NORMAL,
 			e_length, *r_length);
 		if (stop_on_error)
 			return 1;
@@ -1000,7 +1004,7 @@ int exchange(const char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	for (i=0; i<e_length; i++)
 		if (r[i] != e[i])
 		{
-			printf("\33[01;31mERROR byte %d: expected 0x%02X, got 0x%02X\n\33[0m",
+			printf(RED "ERROR byte %d: expected 0x%02X, got 0x%02X\n" NORMAL,
 				i, e[i], r[i]);
 			if (stop_on_error)
 				return 1;
