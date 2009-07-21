@@ -206,6 +206,13 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	if (apdu && tpdu)
+	{
+		printf(RED "You can't use APDU and TPDU modes at the same time" NORMAL);
+		help(argv[0]);
+		return 2;
+	}
+
 	if (NULL == driver)
 	{
 		printf(RED "Use -l libname or define " ENV_LIBNAME NORMAL);
