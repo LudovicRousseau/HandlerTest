@@ -31,7 +31,7 @@
 #include <PCSC/wintypes.h>
 #include <PCSC/ifdhandler.h>
 
-#include "debug.h"
+#include "debuglog.h"
 
 #undef CONTACTLESS
 #undef COMBI
@@ -54,6 +54,7 @@ int exchange(const char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 int extended_apdu(int lun);
 int short_apdu(int lun);
 
+#define DEBUG2(a, b) Log2(PCSC_LOG_ERROR, a, b)
 #define DLSYM(func)  f.func = dlsym(lib_handle, "" # func); \
 	if (f.func == NULL) { \
 	DEBUG2("dlsym: %s", dlerror()); \
