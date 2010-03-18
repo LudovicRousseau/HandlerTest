@@ -21,7 +21,9 @@ void log_msg(const int priority, const char *fmt, ...)
 	(void)priority;
 
 	va_start(argptr, fmt);
+	printf("\33[35m"); /* Magenta */
 	vprintf(fmt, argptr);
+	printf("\33[0m");
 	va_end(argptr);
 	printf("\n");
 } /* log_msg */
