@@ -10,7 +10,8 @@ LDFLAGS = -ldl -rdynamic
 # *BSD
 #LDFLAGS = -rdynamic
 # Mac OS X
-#CFLAGS = -framework PCSC -I. -DRESPONSECODE_DEFINED_IN_WINTYPES_H -DMAX_BUFFER_SIZE_EXTENDED="(4 + 3 + (1<<16) + 3)"
+#CFLAGS = -I. -DRESPONSECODE_DEFINED_IN_WINTYPES_H -DMAX_BUFFER_SIZE_EXTENDED="(4 + 3 + (1<<16) + 3)"
+#LDFLAGS = -framework PCSC
 
 targets = handler_test.o debug.o tokenparser.o strlcpy.o simclist.o
 
