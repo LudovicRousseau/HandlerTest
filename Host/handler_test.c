@@ -395,7 +395,7 @@ end:
 	else
 		printf(BLUE "***********\n*   OK    *\n***********" NORMAL);
 
-	return 0;
+	return test_rv;
 } /* handler_test */
 
 int extended_apdu(int lun)
@@ -939,7 +939,7 @@ char *ifd_error(int rv)
 		case IFD_ICC_NOT_PRESENT:
 			strcpy(strError, "IFD: card _NOT_ present");
 			break;
-			
+
 		case IFD_COMMUNICATION_ERROR:
 			strcpy(strError, "IFD: communication error");
 			break;
