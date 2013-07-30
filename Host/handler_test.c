@@ -50,7 +50,7 @@ int exchange(const char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	PSCARD_IO_HEADER RecvPci,
 	UCHAR s[], DWORD s_length,
 	UCHAR r[], PDWORD r_length,
-	UCHAR e[], int e_length);
+	UCHAR e[], unsigned int e_length);
 int extended_apdu(int lun);
 int short_apdu(int lun);
 
@@ -975,11 +975,11 @@ int exchange(const char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 	PSCARD_IO_HEADER RecvPci,
 	UCHAR s[], DWORD s_length,
 	UCHAR r[], PDWORD r_length,
-	UCHAR e[], int e_length)
+	UCHAR e[], unsigned int e_length)
 {
 	int rv;
 #ifndef CONTACTLESS
-	int i;
+	unsigned int i;
 #else
 	(void)e;
 #endif
