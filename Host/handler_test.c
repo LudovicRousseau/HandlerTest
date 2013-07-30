@@ -272,7 +272,7 @@ int handler_test(int lun, int channel, char device_name[])
 {
 	int rv, test_rv = 1;
 	UCHAR atr[MAX_ATR_SIZE];
-	DWORD atrlength;
+	DWORD atrlength = MAX_ATR_SIZE;
 
 	if (device_name)
 	{
