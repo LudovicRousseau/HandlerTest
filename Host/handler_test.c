@@ -989,7 +989,7 @@ int exchange(const char *text, DWORD lun, SCARD_IO_HEADER SendPci,
 
 	rv = f.IFDHTransmitToICC(lun, SendPci, s, s_length, r, r_length, RecvPci);
 
-	log_msg(0, "Received %d (0x%04X) bytes", *r_length, *r_length);
+	log_msg(0, "Received %lu (0x%04lX) bytes", *r_length, *r_length);
 	log_xxd(0, "Received: ", r, *r_length);
 	if (rv)
 	{
