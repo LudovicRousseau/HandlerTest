@@ -1,11 +1,11 @@
 # $Id$
 
 all:
-	make -C Host all
+	$(MAKE) -C Host all
 
 clean:
-	make -C Host clean
+	$(MAKE) -C Host clean
 
 distclean:
-	make -C Host distclean
+	$(MAKE) -C Host distclean
 
