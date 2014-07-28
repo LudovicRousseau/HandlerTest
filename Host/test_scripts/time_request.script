@@ -12,12 +12,12 @@ reset
 # Select applet
 00 A4 04 00 06 A0 00 00 00 18 FF
 
-# Case 3
+# Case 2
 80 34 00 02 02
 
 # Time request
 80 38 00 40
 
-# Case 3
+# Case 2
 80 34 00 02 02
 
