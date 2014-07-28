@@ -9,27 +9,27 @@
 # reset the card (expected 3B 96 18 80 01 80 51 00 61 10 30 9F)
 reset
 
-# outgoging data (16 bytes)
+# outgoing data (16 bytes)
 80 00 04 42 10
 
-# outgoging data (272 bytes)
+# outgoing data (272 bytes)
 80 00 04 42 00 01 10
 
-# outgoging data (528 bytes)
+# outgoing data (528 bytes)
 80 00 04 42 00 02 10
 
-# outgoging data (784 bytes)
+# outgoing data (784 bytes)
 80 00 04 42 00 03 10
 
-# outgoging data (1040 bytes)
+# outgoing data (1040 bytes)
 80 00 04 42 00 04 10
 
-# outgoging data (2032 bytes)
+# outgoing data (2032 bytes)
 80 00 04 42 00 07 F0
 
-# outgoging data (2048 bytes)
+# outgoing data (2048 bytes)
 80 00 04 42 00 08 00
 
-# outgoging data (2304 bytes)
+# outgoing data (2304 bytes)
 80 00 04 42 00 09 00
 
