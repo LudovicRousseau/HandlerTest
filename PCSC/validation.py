@@ -22,6 +22,7 @@
 from smartcard.System import readers
 from smartcard.util import toBytes, toHexString
 from smartcard.CardConnectionObserver import ConsoleCardConnectionObserver
+from smartcard.CardConnection import CardConnection
 
 
 def print_error(text):
@@ -31,7 +32,8 @@ def print_error(text):
 
 
 class Validation(object):
-    def __init__(self, reader, extended=False, debug=False):
+    def __init__(self, reader, extended=False, debug=False,
+            protocol=None):
         self.reader = reader
 
         # Begining Of Line
@@ -48,11 +50,18 @@ class Validation(object):
             self.connection.addObserver(observer)
             self.BOL = ""
 
-        # connect using any protocol
-        self.connection.connect()
+        # connect using the selected protocol (if any)
+        self.connection.connect(protocol=protocol)
 
         # get the ATR
         self.ATR = self.connection.getATR()
+
+        # display used protocol
+        protocols = {
+                CardConnection.T0_protocol: "T=0",
+                CardConnection.T1_protocol: "T=1"
+                }
+        print "Using protocol:", protocols[self.connection.getProtocol()]
 
         # extended APDU
         self.extended = extended
@@ -274,6 +283,8 @@ def usage(command):
   -r: reader index. By default the first reader is used
   -a: use APDU
   -d: debug mode
+  -Z: force use T=1
+  -z: force use T=0
   -t val: use val as timerequest value"""
     print "Usage: %s [arguments]" % command
     print HELP
@@ -282,7 +293,7 @@ if __name__ == "__main__":
     import sys
     import getopt
 
-    optlist, args = getopt.getopt(sys.argv[1:], "1234r:ft:aedh")
+    optlist, args = getopt.getopt(sys.argv[1:], "1234r:ft:aedhZz")
 
     case_1 = False
     case_2 = False
@@ -293,6 +304,7 @@ if __name__ == "__main__":
     time_extension = False
     extended = False
     debug = False
+    protocol = None
 
     for o, a in optlist:
         if o == "-1":
@@ -316,6 +328,10 @@ if __name__ == "__main__":
             extended = True
         elif o == "-d":
             debug = True
+        elif o == "-Z":
+            protocol = CardConnection.T1_protocol
+        elif o == "-z":
+            protocol = CardConnection.T0_protocol
         elif o == "-h":
             usage(sys.argv[0])
             sys.exit()
@@ -327,7 +343,8 @@ if __name__ == "__main__":
         reader = readers[0]
     print "Using reader:", reader
 
-    validation = Validation(reader, extended=extended, debug=debug)
+    validation = Validation(reader, extended=extended, debug=debug,
+            protocol=protocol)
     if case_1:
         validation.case_1(full)
     if case_2:
