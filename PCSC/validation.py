@@ -138,7 +138,11 @@ class Validation(object):
         print "Case 2 extended"
         print
 
-        if toHexString(self.ATR) != "3B D6 18 00 80 B1 80 6D 1F 03 80 51 00 61 10 30 9E":
+        # ATRs of the Athena test cards
+        Athena_ATRs = ["3B D6 18 00 80 B1 80 6D 1F 03 80 51 00 61 10 30 9E",
+                       "3F 96 18 80 01 80 51 00 61 10 30 9F"]
+
+        if toHexString(self.ATR) not in Athena_ATRs:
             print_error("Wrong card inserted!")
             print "Got ATR:", toHexString(self.ATR)
             return
