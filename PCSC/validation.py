@@ -289,7 +289,7 @@ def usage(command):
   -d: debug mode
   -Z: force use T=1
   -z: force use T=0
-  -t val: use val as timerequest value"""
+  -t val: use val as time request value"""
     print "Usage: %s [arguments]" % command
     print HELP
 
