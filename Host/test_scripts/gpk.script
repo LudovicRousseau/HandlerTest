@@ -1,4 +1,4 @@
-# ! /usr/bin/env scriptor
+#! /usr/bin/env scriptor
 #
 # Call GET CHALLENGE to generate random numbers
 # tested on a Gemplus GPK card
