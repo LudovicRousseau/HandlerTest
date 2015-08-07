@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
 				break;
 
 			case 't':
-				timerequest = atol(optarg);
+				timerequest = atoi(optarg);
 				printf("time request: %d\n", timerequest);
 				break;
 
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
 				break;
 
 			case 'c':
-				channel = atol(optarg);
+				channel = atoi(optarg);
 				printf("Usinf channel: %d\n", channel);
 				break;
 
