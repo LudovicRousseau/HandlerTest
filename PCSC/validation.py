@@ -2,7 +2,7 @@
 
 """
 #    validation.py: perform exchanges with all APDU sizes possible
-#    Copyright (C) 2014  Ludovic Rousseau
+#    Copyright (C) 2014-2016  Ludovic Rousseau
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
