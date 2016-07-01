@@ -33,7 +33,7 @@ def print_error(text):
 
 class Validation(object):
     def __init__(self, reader, extended=False, debug=False,
-            protocol=None):
+            protocol=None, combi=False):
         self.reader = reader
 
         # Begining Of Line
@@ -68,7 +68,10 @@ class Validation(object):
 
         # select APDU
         if not extended:
-            SELECT = toBytes("00 A4 04 00 06 A0 00 00 00 18 FF")
+            if combi:
+                SELECT = toBytes("00 A4 04 00 06 A0 00 00 00 18 50")
+            else:
+                SELECT = toBytes("00 A4 04 00 06 A0 00 00 00 18 FF")
             expected = [[], 0x90, 0x00]
             self.transmitAndCompare(SELECT, expected)
 
@@ -286,6 +289,7 @@ def usage(command):
   -f: test APDU with every possible lengths
   -r: reader index. By default the first reader is used
   -a: use APDU
+  -c: use combi card
   -d: debug mode
   -Z: force use T=1
   -z: force use T=0
@@ -297,7 +301,7 @@ if __name__ == "__main__":
     import sys
     import getopt
 
-    optlist, args = getopt.getopt(sys.argv[1:], "1234r:ft:aedhZz")
+    optlist, args = getopt.getopt(sys.argv[1:], "1234r:ft:acedhZz")
 
     case_1 = False
     case_2 = False
@@ -307,6 +311,7 @@ if __name__ == "__main__":
     apdu = False
     time_extension = False
     extended = False
+    combi = False
     debug = False
     protocol = None
 
@@ -328,6 +333,8 @@ if __name__ == "__main__":
         elif o == "-t":
             time_extension = True
             extension = int(a)
+        elif o == "-c":
+            combi = True
         elif o == "-e":
             extended = True
         elif o == "-d":
@@ -348,7 +355,7 @@ if __name__ == "__main__":
     print "Using reader:", reader
 
     validation = Validation(reader, extended=extended, debug=debug,
-            protocol=protocol)
+            protocol=protocol, combi=combi)
     if case_1:
         validation.case_1(full)
     if case_2:
