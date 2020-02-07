@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 """
 #    validation.py: perform exchanges with all APDU sizes possible
@@ -28,7 +28,7 @@ from smartcard.CardConnection import CardConnection
 def print_error(text):
     RED = '\033[01;31m'
     NORMAL = '\033[0m'
-    print RED + text + NORMAL
+    print(RED + text + NORMAL)
 
 
 class Validation(object):
@@ -39,7 +39,8 @@ class Validation(object):
         # Begining Of Line
         import curses
         curses.setupterm()
-        self.BOL = curses.tigetstr("cr") + curses.tigetstr("cuu1")
+        BOL = curses.tigetstr("cr") + curses.tigetstr("cuu1")
+        self.BOL = BOL.decode('utf-8')
 
         # connect to the reader
         self.connection = reader.createConnection()
@@ -61,7 +62,7 @@ class Validation(object):
                 CardConnection.T0_protocol: "T=0",
                 CardConnection.T1_protocol: "T=1"
                 }
-        print "Using protocol:", protocols[self.connection.getProtocol()]
+        print("Using protocol:", protocols[self.connection.getProtocol()])
 
         # extended APDU
         self.extended = extended
@@ -84,8 +85,8 @@ class Validation(object):
             raise Exception("Fail!")
         if r_data != e_data:
             print_error("Wrong data")
-            print "Received:", r_data
-            print "Expected:", e_data
+            print("Received:", r_data)
+            print("Expected:", e_data)
             raise Exception("Fail!")
 
     def case_1(self, full):
@@ -94,7 +95,7 @@ class Validation(object):
         # <  []  90 0
         CASE_1 = toBytes("80 30 00 00 00")
 
-        print "Case 1"
+        print("Case 1")
 
         expected = ([], 0x90, 0x00)
         self.transmitAndCompare(CASE_1, expected)
@@ -111,8 +112,7 @@ class Validation(object):
         # <  00 01 02 03 04 05 06 90 0
         CASE_2 = toBytes("80 34 00 00 00")
 
-        print "Case 2 short"
-        print
+        print("Case 2 short\n")
 
         end = 256
         if full:
@@ -121,7 +121,7 @@ class Validation(object):
             start = end
 
         for length in range(start, end + 1):
-            print self.BOL, "length:", length
+            print(self.BOL, "length:", length)
             APDU = list(CASE_2)
             APDU[2] = (length & 0xFF00) >> 8
             APDU[3] = length & 0x00FF
@@ -138,8 +138,7 @@ class Validation(object):
         CASE_2 = toBytes("80 00 04 00 00 00 00")
         CASE_2[3] = magic_value
 
-        print "Case 2 extended"
-        print
+        print("Case 2 extended\n")
 
         # ATRs of the Athena test cards
         Athena_ATRs = ["3B D6 18 00 80 B1 80 6D 1F 03 80 51 00 61 10 30 9E",
@@ -147,7 +146,7 @@ class Validation(object):
 
         if toHexString(self.ATR) not in Athena_ATRs:
             print_error("Wrong card inserted!")
-            print "Got ATR:", toHexString(self.ATR)
+            print("Got ATR:", toHexString(self.ATR))
             return
 
         step = 100
@@ -158,7 +157,7 @@ class Validation(object):
             start = end
 
         for length in range(start, end + 1, step):
-            print self.BOL, "length:", length
+            print(self.BOL, "length:", length)
             APDU = list(CASE_2)
             APDU[5] = (length & 0xFF00) >> 8
             APDU[6] = length & 0x00FF
@@ -178,8 +177,7 @@ class Validation(object):
         # <  []  90 0
         CASE_3 = toBytes("80 32 00 00 00")
 
-        print "Case 3 short"
-        print
+        print("Case 3 short\n")
 
         end = 255
         if full:
@@ -189,7 +187,7 @@ class Validation(object):
 
         expected = ([], 0x90, 0x00)
         for length in range(start, end + 1):
-            print self.BOL, "length:", length
+            print(self.BOL, "length:", length)
             APDU = list(CASE_3)
             APDU[4] = length
             APDU += [i for i in range(0, length)]
@@ -202,12 +200,11 @@ class Validation(object):
         # <  []  90 0
         CASE_3 = toBytes("80 12 01 80 00 00 00")
 
-        print "Case 3 extended"
-        print
+        print("Case 3 extended\n")
 
         if toHexString(self.ATR) != "3B D6 18 00 81 B1 80 7D 1F 03 80 51 00 61 10 30 8F":
             print_error("Wrong card inserted!")
-            print "Got ATR:", toHexString(self.ATR)
+            print("Got ATR:", toHexString(self.ATR))
             return
 
         end = 65535
@@ -219,7 +216,7 @@ class Validation(object):
 
         expected = ([], 0x90, 0x00)
         for length in range(start, end + 1, step):
-            print self.BOL, "length:", length
+            print(self.BOL, "length:", length)
             APDU = list(CASE_3)
             APDU[5] = (length & 0xFF00) >> 8
             APDU[6] = length & 0x00FF
@@ -239,8 +236,7 @@ class Validation(object):
         # <  00 01 02 03 04 05 06 07 08 90 0
         CASE_2 = toBytes("80 36 00 00 00")
 
-        print "Case 4"
-        print
+        print("Case 4\n")
 
         end = 255
         if full:
@@ -249,7 +245,7 @@ class Validation(object):
             start = 255
 
         for length_in in range(start, end + 1):
-            print self.BOL, "length:", length_in
+            print(self.BOL, "length:", length_in)
             length_out = length_in + 1
             APDU = list(CASE_2)
             APDU[2] = (length_out & 0xFF00) >> 8
@@ -294,8 +290,8 @@ def usage(command):
   -Z: force use T=1
   -z: force use T=0
   -t val: use val as time request value"""
-    print "Usage: %s [arguments]" % command
-    print HELP
+    print("Usage: %s [arguments]" % command)
+    print(HELP)
 
 if __name__ == "__main__":
     import sys
@@ -352,7 +348,7 @@ if __name__ == "__main__":
         reader = readers[reader_index]
     except:
         reader = readers[0]
-    print "Using reader:", reader
+    print("Using reader:", reader)
 
     validation = Validation(reader, extended=extended, debug=debug,
             protocol=protocol, combi=combi)
