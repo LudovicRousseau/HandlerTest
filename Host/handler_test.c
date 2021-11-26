@@ -34,7 +34,6 @@
 #include "debuglog.h"
 
 #undef CONTACTLESS
-#undef COMBI
 
 #define LUN 0
 #define ENV_LIBNAME "LIB"
@@ -98,6 +97,7 @@ char apdu = FALSE;
 char t1 = FALSE;
 char stop_on_error = TRUE;
 char extended = FALSE;
+char combi = FALSE;
 
 
 static void help(char *argv0)
@@ -113,6 +113,7 @@ static void help(char *argv0)
 	printf("  -A : use APDU\n");
 	printf("  -T : use TPDU\n");
 	printf("  -Z : use T=1 instead of default T=0\n");
+	printf("  -C : use a combi card\n");
 	printf("  -n : non stop, do not stop on the first error\n");
 	printf("  -l libname : driver to load\n");
 	printf("  -c channel : channel to use (for a serial driver)\n");
@@ -138,7 +139,7 @@ int main(int argc, char *argv[])
 
 	driver = getenv(ENV_LIBNAME);
 
-	while ((opt = getopt(argc, argv, "ft:1234ATZnel:c:d:h")) != EOF)
+	while ((opt = getopt(argc, argv, "ft:1234ATZCnel:c:d:h")) != EOF)
 	{
 		switch (opt)
 		{
@@ -178,6 +179,11 @@ int main(int argc, char *argv[])
 			case 'Z':
 				t1 = TRUE;
 				printf("Use T=1\n");
+				break;
+
+			case 'C':
+				combi = TRUE;
+				printf("Use a combi card\n");
 				break;
 
 			case 'n':
@@ -537,11 +543,10 @@ int short_apdu(int lun)
 	s[7] = 0x00;
 	s[8] = 0x00;
 	s[9] = 0x18;
-#ifdef COMBI
-	s[10] = 0x50;
-#else
-	s[10] = 0xFF;
-#endif
+	if (combi)
+		s[10] = 0x50;
+	else
+		s[10] = 0xFF;
 
 	dwSendLength = 11;
 	dwRecvLength = sizeof(r);
