@@ -18,7 +18,7 @@ targets = handler_test.o debug.o tokenparser.o strlcpy.o simclist.o
 all: handler_test
 
 handler_test: $(targets)
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
 	rm -f .dependencies
