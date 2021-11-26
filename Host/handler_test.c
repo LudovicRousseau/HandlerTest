@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
 
 	driver = getenv(ENV_LIBNAME);
 
-	while ((opt = getopt(argc, argv, "ft:1234ATZnel:c:d:")) != EOF)
+	while ((opt = getopt(argc, argv, "ft:1234ATZnel:c:d:h")) != EOF)
 	{
 		switch (opt)
 		{
@@ -198,6 +198,10 @@ int main(int argc, char *argv[])
 			case 'd':
 				device_name = optarg;
 				printf("Using device: %s\n", device_name);
+				break;
+
+			case 'h':
+				help(argv[0]);
 				break;
 
 			default:
