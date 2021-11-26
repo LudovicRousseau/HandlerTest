@@ -35,7 +35,6 @@
 
 #undef CONTACTLESS
 
-#define LUN 0
 #define ENV_LIBNAME "LIB"
 
 #ifndef TRUE
@@ -115,6 +114,7 @@ static void help(char *argv0)
 	printf("  -Z : use T=1 instead of default T=0\n");
 	printf("  -C : use a combi card\n");
 	printf("  -n : non stop, do not stop on the first error\n");
+	printf("  -s n : use slot number n\n");
 	printf("  -l libname : driver to load\n");
 	printf("  -c channel : channel to use (for a serial driver)\n");
 	printf("  -d device_name : name to use in IFDHCreateChannelByName\n");
@@ -136,10 +136,11 @@ int main(int argc, char *argv[])
 	char *driver;
 	int opt;
 	char *device_name = NULL;
+	int slot = 0;
 
 	driver = getenv(ENV_LIBNAME);
 
-	while ((opt = getopt(argc, argv, "ft:1234ATZCnel:c:d:h")) != EOF)
+	while ((opt = getopt(argc, argv, "ft:1234ATZCnel:c:d:hs:")) != EOF)
 	{
 		switch (opt)
 		{
@@ -206,6 +207,11 @@ int main(int argc, char *argv[])
 				printf("Using device: %s\n", device_name);
 				break;
 
+			case 's':
+				slot = atoi(optarg);
+				printf("use slot: %d\n", slot);
+				break;
+
 			case 'h':
 				help(argv[0]);
 				break;
@@ -240,6 +246,7 @@ int main(int argc, char *argv[])
 	printf("Using driver: %s\n", driver);
 	printf("Using channel: %d\n", channel);
 	printf("Using device_name: %s\n", device_name);
+	printf("Using slot: %d\n", slot);
 
 	lib_handle = dlopen(driver, RTLD_LAZY);
 	if (lib_handle == NULL)
@@ -272,13 +279,13 @@ int main(int argc, char *argv[])
 		f.version = IFD_HVERSION_3_0;
 
 	printf("%s:%d\n", __FILE__, __LINE__);
-	ret = handler_test(LUN, channel, device_name);
+	ret = handler_test(slot, channel, device_name);
 	dlclose(lib_handle);
 
 	return ret;
 } /* main */
 
-int handler_test(int lun, int channel, char device_name[])
+int handler_test(int slot, int channel, char device_name[])
 {
 	int rv, test_rv = 1;
 	UCHAR atr[MAX_ATR_SIZE];
@@ -286,7 +293,7 @@ int handler_test(int lun, int channel, char device_name[])
 
 	if (device_name)
 	{
-		rv = f.IFDHCreateChannelByName(lun, device_name);
+		rv = f.IFDHCreateChannelByName(slot, device_name);
 
 		if (rv != IFD_SUCCESS)
 		{
@@ -298,14 +305,18 @@ int handler_test(int lun, int channel, char device_name[])
 	}
 	else
 	{
-		rv = f.IFDHCreateChannel(lun, channel);
-
-		if (rv != IFD_SUCCESS)
+		for (int i=0; i<=slot; i++)
 		{
-			printf("IFDHCreateChannel: %d\n", rv);
-			printf("\nAre you sure a CCID reader is connected?\n");
-			printf("and that you have read/write permission on the device?\n");
-			return 1;
+			printf("Opening slot: %d\n", i);
+			rv = f.IFDHCreateChannel(i, channel);
+
+			if (rv != IFD_SUCCESS)
+			{
+				printf("IFDHCreateChannel: %d\n", rv);
+				printf("\nAre you sure a CCID reader is connected?\n");
+				printf("and that you have read/write permission on the device?\n");
+				return 1;
+			}
 		}
 	}
 
@@ -320,7 +331,7 @@ int handler_test(int lun, int channel, char device_name[])
 		unsigned char res[100];
 		DWORD length;
 
-		rv = f.IFDHControl(LUN, IOCTL_SMARTCARD_VENDOR_IFD_EXCHANGE,
+		rv = f.IFDHControl(slot, IOCTL_SMARTCARD_VENDOR_IFD_EXCHANGE,
 			cmd, sizeof(cmd)-1, res, sizeof(res), &length);
 		if (IFD_SUCCESS == rv)
 		{
@@ -334,12 +345,12 @@ int handler_test(int lun, int channel, char device_name[])
 	}
 #endif
 
-	rv = f.IFDHICCPresence(LUN);
+	rv = f.IFDHICCPresence(slot);
 	PCSC_ERROR("IFDHICCPresence");
 	if (IFD_ICC_PRESENT != rv)
 		goto end;
 
-	rv = f.IFDHPowerICC(LUN, IFD_RESET, atr, &atrlength);
+	rv = f.IFDHPowerICC(slot, IFD_RESET, atr, &atrlength);
 	if (rv != IFD_SUCCESS)
 	{
 		PCSC_ERROR("IFDHPowerICC");
@@ -347,7 +358,7 @@ int handler_test(int lun, int channel, char device_name[])
 	}
 
 #ifdef __APPLE__
-	rv = f.IFDHPowerICC(LUN, IFD_POWER_UP, atr, &atrlength);
+	rv = f.IFDHPowerICC(slot, IFD_POWER_UP, atr, &atrlength);
 	if (rv != IFD_SUCCESS)
 	{
 		PCSC_ERROR("IFDHPowerICC");
@@ -357,12 +368,12 @@ int handler_test(int lun, int channel, char device_name[])
 
 	log_xxd(0, "ATR: ", atr, atrlength);
 
-	rv = f.IFDHICCPresence(LUN);
+	rv = f.IFDHICCPresence(slot);
 	PCSC_ERROR("IFDHICCPresence");
 	if (IFD_ICC_PRESENT != rv)
 		goto end;
 
-	rv = f.IFDHSetProtocolParameters(LUN,
+	rv = f.IFDHSetProtocolParameters(slot,
 		t1 ? SCARD_PROTOCOL_T1 : SCARD_PROTOCOL_T0,
 		0, 0, 0, 0);
 	PCSC_ERROR("IFDHSetProtocolParameters");
@@ -370,16 +381,20 @@ int handler_test(int lun, int channel, char device_name[])
 		goto end;
 
 	if (extended)
-		test_rv = extended_apdu(lun);
+		test_rv = extended_apdu(slot);
 	else
-		test_rv = short_apdu(lun);
+		test_rv = short_apdu(slot);
 
 end:
 	/* Close */
-	rv = f.IFDHCloseChannel(LUN);
-	PCSC_ERROR("IFDHCloseChannel");
-	if (rv != IFD_SUCCESS)
-		return 1;
+	for (int i=0; i<=slot; i++)
+	{
+		printf("Closing slot %d\n", i);
+		rv = f.IFDHCloseChannel(i);
+		PCSC_ERROR("IFDHCloseChannel");
+		if (rv != IFD_SUCCESS)
+			return 1;
+	}
 
 	printf("\nTest summary:\n");
 	printf("Cases: ");
