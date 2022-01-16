@@ -1,5 +1,4 @@
 /*
- * $Id$
  * GCdebug.c: log (or not) messages
  * Copyright (C) 2001-2010 Ludovic Rousseau <ludovic.rousseau@free.fr>
  * 
