@@ -26,6 +26,8 @@ void log_msg(const int priority, const char *fmt, ...)
 	printf("\33[0m");
 	va_end(argptr);
 	printf("\n");
+
+	fflush(stdout);
 } /* log_msg */
 
 void log_xxd(const int priority, const char *msg, const unsigned char *buffer,
@@ -41,5 +43,7 @@ void log_xxd(const int priority, const char *msg, const unsigned char *buffer,
 		printf("%02X ", buffer[i]);
 
 	printf("\n");
+
+	fflush(stdout);
 } /* log_xxd */
 
