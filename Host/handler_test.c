@@ -278,7 +278,6 @@ int main(int argc, char *argv[])
 	else
 		f.version = IFD_HVERSION_3_0;
 
-	printf("%s:%d\n", __FILE__, __LINE__);
 	ret = handler_test(slot, channel, device_name);
 	dlclose(lib_handle);
 
