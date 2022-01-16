@@ -292,14 +292,18 @@ int handler_test(int slot, int channel, char device_name[])
 
 	if (device_name)
 	{
-		rv = f.IFDHCreateChannelByName(slot, device_name);
-
-		if (rv != IFD_SUCCESS)
+		for (int i=0; i<=slot; i++)
 		{
-			printf("IFDHCreateChannelByName: %d\n", rv);
-			printf("\nAre you sure a CCID reader is connected?\n");
-			printf("and that you have read/write permission on the device?\n");
-			return 1;
+			printf("Opening slot: %d\n", i);
+			rv = f.IFDHCreateChannelByName(i, device_name);
+
+			if (rv != IFD_SUCCESS)
+			{
+				printf("IFDHCreateChannelByName: %d\n", rv);
+				printf("\nAre you sure a CCID reader is connected?\n");
+				printf("and that you have read/write permission on the device?\n");
+				return 1;
+			}
 		}
 	}
 	else
