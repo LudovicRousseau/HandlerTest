@@ -25,7 +25,11 @@
 #include <getopt.h>
 #include <PCSC/winscard.h>
 #include <PCSC/wintypes.h>
+#ifdef __APPLE__
+#include "ifdhandler.h"
+#else
 #include <PCSC/ifdhandler.h>
+#endif
 
 #include "debuglog.h"
 
