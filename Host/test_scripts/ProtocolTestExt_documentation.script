@@ -1,0 +1,95 @@
+#! /usr/bin/env scriptor
+#
+# Script to test a driver/reader
+# (c) 2022, Ludovic Rousseau
+
+# Use scriptor for pcsc-tools to execute this script
+# http://ludovic.rousseau.free.fr/softwares/pcsc-tools/
+
+# reset the card
+reset
+
+# Select applet
+00 A4 04 00 09 A0 00 00 00 66 03 01 B3 01
+
+# Case 1
+00 10 00 00
+00 10 00 00 00
+00 10 00 00 00 00
+
+# Case 2
+# parameter P2 indicates the number of bytes to return
+00 20 00 00 00
+00 20 00 01 00
+00 20 00 10 00
+00 20 00 FF 00
+
+# Case 3
+# Lc contains the number of bytes sent
+00 30 00 00 00
+00 30 00 00 01 00
+00 30 00 00 02 00 00
+
+# Case 4
+# Combination of Case 2 (P12 parameter) + Case 3 (Lc parameter)
+00 40 00 00
+00 40 00 10 10 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+00 40 00 10
+00 40 00 10 00
+
+# config WTX
+# P2 is the counter for the wait loop
+00 50 00 00
+# fast loop: counter = 00
+
+# Case 1 WTX
+00 11 00 00
+
+# Case 2 WTX
+00 21 00 00 00
+
+# Case 3 WTX
+00 31 00 00 02 00 00
+
+# Case 4 WTX
+00 41 00 10 10 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+
+# config WTX
+# P2 is the counter for the wait loop
+00 50 00 FF
+# slow loop: counter = FF
+
+# Case 1 WTX
+00 11 00 00
+
+# Case 2 WTX
+00 21 00 00 00
+
+# Case 3 WTX
+#00 31 00 00 02 00 00
+
+# Case 4 WTX a (wait on receive & send)
+#00 41 00 10 10 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+
+# Case 4 WTX b (wait on receive only)
+#00 42 00 10 10 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+
+# Verify data in
+# copy the data received by the previous command
+00 51 00 00
+
+# Get protocol IFSD
+00 52 00 00
+
+# Verify data in ext
+00 53 00 00
+
+# Get incoming length ext
+# returns the incoming Length of the previous ca+++se 3 Ext
+00 54 00 00
+
+# Get APDU buffer size
+00 55 00 00
+
+# Get Le
+00 56 00 00
