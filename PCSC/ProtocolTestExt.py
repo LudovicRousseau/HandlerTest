@@ -36,7 +36,7 @@ def print_error(text):
 
 class Validation(object):
     def __init__(self, reader, extended=False, debug=False,
-            protocol=None):
+            protocol=None, full=False, apdu=False):
         self.reader = reader
 
         # Begining Of Line
@@ -66,8 +66,10 @@ class Validation(object):
                 }
         print("Using protocol:", protocols[self.connection.getProtocol()])
 
-        # extended APDU
+        # Store parameters
         self.extended = extended
+        self.full = full
+        self.apdu = apdu
 
         applets_ATR = {
                 "3B FF 97 00 00 81 31 FE 43 80 31 80 65 B0 84 66 69 39 12 FF FE 82 90 00 32": { "version": 2, "protocol": 1},
@@ -99,7 +101,7 @@ class Validation(object):
             print("Expected:", toHexString(e_data))
             raise Exception("Fail!")
 
-    def case_1(self, full):
+    def case_1(self):
         # no data exchanged
         # > 00 10 00 00
         # < [] 90 00
@@ -110,13 +112,13 @@ class Validation(object):
         expected = ([], 0x90, 0x00)
         self.transmitAndCompare(CASE_1, expected)
 
-    def case_2(self, full):
+    def case_2(self):
         if self.extended:
-            self.case_2e(full)
+            self.case_2e()
         else:
-            self.case_2s(full)
+            self.case_2s()
 
-    def case_2s(self, full):
+    def case_2s(self):
         # gets (1 to 256) data from the card
         # >  00 20 00 07 07
         # <  00 01 02 03 04 05 06 90 00
@@ -126,7 +128,7 @@ class Validation(object):
         print("Case 2 short\n")
 
         end = 256
-        if full:
+        if self.full:
             start = 1
         else:
             start = end
@@ -148,7 +150,7 @@ class Validation(object):
             expected_Le = ([length_high, length_low], 0x90, 0x00)
             self.transmitAndCompare(APDU, expected_Le)
 
-    def case_2e(self, full):
+    def case_2e(self):
         # gets (1 to 64k) data from the card
         # >  00 B0 01 42 00 01 42
         # < 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 
@@ -179,7 +181,7 @@ class Validation(object):
 
         step = 100
         end = 65535
-        if full:
+        if self.full:
             start = 1
         else:
             start = end
@@ -203,13 +205,13 @@ class Validation(object):
             expected_Le = ([length_high, length_low], 0x90, 0x00)
             self.transmitAndCompare(APDU, expected_Le)
 
-    def case_3(self, full):
+    def case_3(self):
         if self.extended:
-            self.case_3e(full)
+            self.case_3e()
         else:
-            self.case_3s(full)
+            self.case_3s()
 
-    def case_3s(self, full):
+    def case_3s(self):
         # send data to the card
         # >  00 30 00 00 07 00 01 02 03 04 05 06
         # <  []  90 0
@@ -219,7 +221,7 @@ class Validation(object):
         print("Case 3 short\n")
 
         end = 255
-        if full:
+        if self.full:
             start = 1
         else:
             start = end
@@ -241,7 +243,7 @@ class Validation(object):
             expected_data = (data + [length], 0x90, 0x00)
             self.transmitAndCompare(APDU, expected_data)
 
-    def case_3e(self, full):
+    def case_3e(self):
         # send data to the card
         # >  00 D0 00 00 00 00 07 00 01 02 03 04 05 06
         # <  []  90 0
@@ -253,7 +255,7 @@ class Validation(object):
 
         end = 65535
         step = 100
-        if full:
+        if self.full:
             start = 10
         else:
             start = end
@@ -283,7 +285,7 @@ class Validation(object):
             expected_data = (data, 0x90, 0x00)
             self.transmitAndCompare(APDU, expected_data)
 
-    def case_4(self, full, apdu):
+    def case_4(self):
         # send data to the card and get response
         # mode APDU (T=1)
         # >  80 36 00 09 08 00 01 02 03 04 05 06 07
@@ -299,7 +301,7 @@ class Validation(object):
         print("Case 4\n")
 
         end = 255
-        if full:
+        if self.full:
             start = 1
         else:
             start = 255
@@ -316,7 +318,7 @@ class Validation(object):
             APDU[4] = length_in
             APDU += [i for i in range(0, length_in)]
 
-            if apdu:
+            if self.apdu:
                 expected = ([i for i in range(0, length_out)], 0x90, 0x00)
                 self.transmitAndCompare(APDU, expected)
             else:
@@ -415,14 +417,14 @@ if __name__ == "__main__":
     print("Using reader:", reader)
 
     validation = Validation(reader, extended=extended, debug=debug,
-            protocol=protocol)
+            protocol=protocol, full=full, apdu=apdu)
     if case_1:
-        validation.case_1(full)
+        validation.case_1()
     if case_2:
-        validation.case_2(full)
+        validation.case_2()
     if case_3:
-        validation.case_3(full)
+        validation.case_3()
     if case_4:
-        validation.case_4(full, apdu)
+        validation.case_4()
     if time_extension:
         validation.time_extension(extension)
