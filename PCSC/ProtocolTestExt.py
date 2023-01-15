@@ -69,8 +69,20 @@ class Validation(object):
         # extended APDU
         self.extended = extended
 
+        applets_ATR = {
+                "3B FF 97 00 00 81 31 FE 43 80 31 80 65 B0 84 66 69 39 12 FF FE 82 90 00 32": { "version": 2, "protocol": 1},
+                "3B FF 96 00 00 81 31 FE 43 80 31 80 65 B0 84 66 69 FB 12 FF FE 82 90 00 F1": { "version": 1, "protocol": 1},
+                "3B 7F 97 00 00 80 31 80 65 B0 84 66 69 39 12 FF FE 82 90 00": { "version": 2, "protocol": 0}
+                }
+
         # select APDU
-        SELECT = toBytes("00 A4 04 00 09 A0 00 00 00 66 03 01 B3 01")
+        SELECT_version = {
+                1: "00 A4 04 00 09 A0 00 00 00 66 03 01 B3 01",
+                2: "00 A4 04 00 09 A0 00 00 00 66 03 01 B4 01"
+                }
+        atr = toHexString(self.ATR)
+        self.applet = applets_ATR[atr]
+        SELECT = toBytes(SELECT_version[self.applet["version"]])
         expected = [[], 0x90, 0x00]
         self.transmitAndCompare(SELECT, expected)
 
