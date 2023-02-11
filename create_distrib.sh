@@ -4,7 +4,7 @@
 
 # create a new directory named after the current directory name
 # the directory name should be in the form foo-bar.x.y.z
-# the use of "_" is not recommanded since it is a problem for Debian
+# the use of "_" is not recommended since it is a problem for Debian
 
 dir=$(basename $(pwd))-$(perl -ne 'if (m/^\d.\d.\d/) { s/ .*//; print; exit;}' README)
 
