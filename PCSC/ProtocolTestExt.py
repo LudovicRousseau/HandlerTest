@@ -39,7 +39,7 @@ class Validation(object):
             protocol=None, full=False, apdu=False, size=None):
         self.reader = reader
 
-        # Begining Of Line
+        # Beginning Of Line
         curses.setupterm()
         BOL = curses.tigetstr("cr") + curses.tigetstr("cuu1")
         self.BOL = BOL.decode('utf-8')
