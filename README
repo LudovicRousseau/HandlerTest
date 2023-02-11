@@ -88,7 +88,7 @@ History
         now use from 30 to 3E with only even values.
       - add VERIFY PIN command
       - add VERIFY PIN dump command
-      - manage an (unsecure) retryCounter
+      - manage an (insecure) retryCounter
     - support of TPDU
     - support of T=1
     - support of IFDHCreateChannelByName (ifd handler API v3.0)
