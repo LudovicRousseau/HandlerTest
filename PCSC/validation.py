@@ -36,7 +36,7 @@ class Validation(object):
             protocol=None, combi=False):
         self.reader = reader
 
-        # Begining Of Line
+        # Beginning Of Line
         import curses
         curses.setupterm()
         BOL = curses.tigetstr("cr") + curses.tigetstr("cuu1")
