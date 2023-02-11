@@ -4,7 +4,7 @@
 # (c) 2008, Ludovic Rousseau
 
 # Use scriptor for pcsc-tools to execute this script
-# http://ludovic.rousseau.free.fr/softwares/pcsc-tools/
+# https://pcsc-tools.apdu.fr/
 
 # reset the card
 reset
