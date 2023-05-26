@@ -36,7 +36,7 @@ def print_error(text):
 
 class Validation(object):
     def __init__(self, reader, extended=False, debug=False,
-            protocol=None, full=False, apdu=False):
+            protocol=None, full=False, apdu=False, size=None):
         self.reader = reader
 
         # Begining Of Line
@@ -71,6 +71,7 @@ class Validation(object):
         self.extended = extended
         self.full = full
         self.apdu = apdu
+        self.size = size
 
         applets_ATR = {
                 "3B FF 97 00 00 81 31 FE 43 80 31 80 65 B0 84 66 69 39 12 FF FE 82 90 00 32": { "version": 2, "protocol": 1},
@@ -135,7 +136,10 @@ class Validation(object):
 
         print("Case 2 short\n")
 
-        end = 256
+        if self.size:
+            end = self.size
+        else:
+            end = 256
         if self.full:
             start = 1
         else:
@@ -247,7 +251,10 @@ class Validation(object):
 
         print("Case 3 short\n")
 
-        end = 255
+        if self.size:
+            end = self.size
+        else:
+            end = 255
         if self.full:
             start = 1
         else:
@@ -328,11 +335,14 @@ class Validation(object):
 
         print("Case 4\n")
 
-        end = 255
+        if self.size:
+            end = self.size
+        else:
+            end = 255
         if self.full:
             start = 1
         else:
-            start = 255
+            start = end
 
         expected = ([], 0x90, 0x00)
         for length_in in range(start, end + 1):
@@ -394,7 +404,7 @@ def usage(command):
     print(HELP)
 
 if __name__ == "__main__":
-    optlist, args = getopt.getopt(sys.argv[1:], "1234r:ft:acedhZz")
+    optlist, args = getopt.getopt(sys.argv[1:], "1234r:ft:acedhZzs:")
 
     case_1 = False
     case_2 = False
@@ -406,6 +416,7 @@ if __name__ == "__main__":
     extended = False
     debug = False
     protocol = None
+    size = None
 
     for o, a in optlist:
         if o == "-1":
@@ -433,6 +444,8 @@ if __name__ == "__main__":
             protocol = CardConnection.T1_protocol
         elif o == "-z":
             protocol = CardConnection.T0_protocol
+        elif o == "-s":
+            size = int(a)
         elif o == "-h":
             usage(sys.argv[0])
             sys.exit()
@@ -445,7 +458,7 @@ if __name__ == "__main__":
     print("Using reader:", reader)
 
     validation = Validation(reader, extended=extended, debug=debug,
-            protocol=protocol, full=full, apdu=apdu)
+            protocol=protocol, full=full, apdu=apdu, size=size)
     if case_1:
         validation.case_1()
     if case_2:
