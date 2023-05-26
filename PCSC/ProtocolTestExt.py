@@ -64,7 +64,8 @@ class Validation(object):
                 CardConnection.T0_protocol: "T=0",
                 CardConnection.T1_protocol: "T=1"
                 }
-        print("Using protocol:", protocols[self.connection.getProtocol()])
+        self.protocol = self.connection.getProtocol()
+        print("Using protocol:", protocols[self.protocol])
 
         # Store parameters
         self.extended = extended
@@ -86,7 +87,10 @@ class Validation(object):
         atr = toHexString(self.ATR)
         self.applet = applets_ATR[atr]
         SELECT = toBytes(SELECT_version[self.applet["version"]])
-        expected = [[], 0x90, 0x00]
+        if self.protocol == CardConnection.T0_protocol:
+            expected = [[], 0x61, 0x00]
+        else:
+            expected = [[], 0x90, 0x00]
         self.transmitAndCompare(SELECT, expected)
 
     def transmitAndCompare(self, apdu, expected):
@@ -124,7 +128,8 @@ class Validation(object):
         # >  00 20 00 07 07
         # <  00 01 02 03 04 05 06 90 00
         CASE_2 = toBytes("00 20 00 00 00")
-        GET_LE = toBytes("00 56 00 00")
+        # 2 bytes expected
+        GET_LE = toBytes("00 56 00 00 02")
 
         print("Case 2 short\n")
 
@@ -217,7 +222,8 @@ class Validation(object):
         # >  00 30 00 00 07 00 01 02 03 04 05 06
         # <  []  90 0
         CASE_3 = toBytes("00 30 00 00 00")
-        GET_DATA_IN = toBytes("00 51 00 00")
+        # expect up to 255 byes
+        GET_DATA_IN = toBytes("00 51 00 00 00")
 
         print("Case 3 short\n")
 
@@ -319,14 +325,14 @@ class Validation(object):
             APDU[4] = length_in
             APDU += [i for i in range(0, length_in)]
 
-            if self.apdu:
+            if self.apdu and self.protocol == CardConnection.T1_protocol:
                 expected = ([i for i in range(0, length_out)], 0x90, 0x00)
                 self.transmitAndCompare(APDU, expected)
             else:
                 expected = ([], 0x61, length_out & 0xFF)
                 self.transmitAndCompare(APDU, expected)
 
-                GET_RESPONSE = toBytes("80 C0 00 00 00")
+                GET_RESPONSE = toBytes("00 C0 00 00 00")
                 GET_RESPONSE[4] = length_out & 0xFF
 
                 expected = ([i for i in range(0, length_out)], 0x90, 0x00)
