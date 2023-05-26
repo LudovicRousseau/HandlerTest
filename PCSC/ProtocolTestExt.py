@@ -74,6 +74,7 @@ class Validation(object):
         applets_ATR = {
                 "3B FF 97 00 00 81 31 FE 43 80 31 80 65 B0 84 66 69 39 12 FF FE 82 90 00 32": { "version": 2, "protocol": 1},
                 "3B FF 96 00 00 81 31 FE 43 80 31 80 65 B0 84 66 69 FB 12 FF FE 82 90 00 F1": { "version": 1, "protocol": 1},
+                "3B 8F 80 01 80 91 00 31 80 65 B0 84 05 00 25 83 01 90 00 CD": { "version": 2, "protocol": 1},
                 "3B 7F 97 00 00 80 31 80 65 B0 84 66 69 39 12 FF FE 82 90 00": { "version": 2, "protocol": 0}
                 }
 
