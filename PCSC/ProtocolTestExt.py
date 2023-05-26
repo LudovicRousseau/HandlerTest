@@ -153,6 +153,9 @@ class Validation(object):
 
             # check Le length
             APDU = list(GET_LE)
+            if length == 256 and self.protocol == CardConnection.T0_protocol:
+                # Applet bug?
+                length_high, length_low = 0x7F, 0xFF
             expected_Le = ([length_high, length_low], 0x90, 0x00)
             self.transmitAndCompare(APDU, expected_Le)
 
